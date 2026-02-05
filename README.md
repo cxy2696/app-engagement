@@ -1,7 +1,5 @@
 # App Engagement Analysis
 
-This repository contains datasets, models, and code for analyzing and predicting user engagement in applications using graph-based machine learning techniques, specifically MetaPath2Vec embeddings.
-
 ## Purpose
 The project focuses on processing app engagement data from January and February (2024). It includes graph construction, model training (or pre-trained weights), and prediction workflows. The primary tool is a Jupyter notebook for loading data, models, and generating predictions.
 
