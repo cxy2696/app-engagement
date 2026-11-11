@@ -8,7 +8,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-**[Showcase](docs/showcase.md)** · **[Technical report](paper/engagegraph-report.pdf)** · **[Evaluation report](reports/evaluation-report.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
+**[Showcase](docs/showcase.md)** · **[Technical report](paper/engagegraph-report.pdf)** · **[Evaluation report](reports/evaluation-report.md)** · **[Verification](docs/verification.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
 
 EngageGraph turns panel-scale app-usage exports into a **leakage-free temporal benchmark**, a set of **honest baselines**, and a **servable recommendation API** with a human-readable dashboard. It is the maintained successor to the original `app-engagement` research notebook.
 
@@ -199,6 +199,7 @@ Jan-Feb-parquet/          # original aggregated exports (research use only)
 | [Showcase](docs/showcase.md) | Screens, links, and the reference result |
 | [Generality](docs/generality.md) | Adapting the same engine to products, content, SaaS, or another catalogue |
 | [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, expected outputs, CI |
+| [Verification](docs/verification.md) | Determinism, domain invariance, mathematical invariants |
 | [Governance](docs/governance.md) | Change control, releases, data ethics |
 | [中文说明](README.zh-CN.md) | 中文快速开始与项目说明 |
 

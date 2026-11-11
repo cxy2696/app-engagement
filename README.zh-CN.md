@@ -8,7 +8,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-**[展示页](docs/showcase.md)** · **[技术报告](paper/engagegraph-report.pdf)** · **[评估报告](reports/evaluation-report.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
+**[展示页](docs/showcase.md)** · **[技术报告](paper/engagegraph-report.pdf)** · **[评估报告](reports/evaluation-report.md)** · **[可复现性验证](docs/verification.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
 
 EngageGraph 是原 `app-engagement` 研究 notebook 的工程化升级版：把 2024 年 1–2 月的面板应用使用数据，变成**无泄漏的时序基准、可解释的基线模型、可部署的推荐 API 与仪表盘**。
 
@@ -140,6 +140,7 @@ Jan-Feb-parquet/     原始聚合数据（仅限研究复现）
 | [`docs/showcase.md`](docs/showcase.md) | 截图、链接与参考结果 |
 | [`docs/generality.md`](docs/generality.md) | 适配电商、内容、SaaS 等其他领域 |
 | [`docs/reproducibility.md`](docs/reproducibility.md) | 种子、指纹、CI、已知不可复现因素 |
+| [`docs/verification.md`](docs/verification.md) | 确定性、领域不变性、数学不变量 |
 | [`docs/governance.md`](docs/governance.md) | 变更控制、发布、数据伦理 |
 
 ## 数据与许可

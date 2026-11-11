@@ -2,7 +2,7 @@ PYTHON ?= .venv/bin/python
 PIP ?= $(PYTHON) -m pip
 ARTIFACT ?= artifacts/demo
 
-.PHONY: help install install-graph data benchmark train demo serve test lint format typecheck check report paper docker clean lock
+.PHONY: help install install-graph data benchmark train demo serve test lint format typecheck check verify report paper docker clean lock
 
 help:
 	@echo "install        install core + dev dependencies"
@@ -61,6 +61,9 @@ typecheck:
 check: lint test
 	$(PYTHON) -m ruff format --check src tests scripts
 	$(PYTHON) -m mypy src/engagegraph
+
+verify:
+	$(PYTHON) scripts/verify_reproducibility.py
 
 report:
 	$(PYTHON) -m engagegraph report --benchmark artifacts/runs/benchmark.json --out reports

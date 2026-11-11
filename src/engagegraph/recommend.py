@@ -85,6 +85,24 @@ class SimilarItem:
         }
 
 
+def within_user_percentile(
+    scores: np.ndarray, candidates: np.ndarray, item_indices: np.ndarray
+) -> np.ndarray:
+    """Fraction of unseen candidates at or below each selected item's score.
+
+    Ties receive the upper rank (``side='right'``), so identical scores map to
+    the same percentile.  The function is distribution-free and invariant to
+    any strictly increasing score transform.
+    """
+
+    candidates = np.asarray(candidates, dtype=np.int64)
+    if candidates.size == 0:
+        return np.zeros(0, dtype=np.float64)
+    ordered = np.sort(np.asarray(scores)[candidates])
+    ranks = np.searchsorted(ordered, np.asarray(scores)[item_indices], side="right")
+    return ranks.astype(np.float64) / float(candidates.size)
+
+
 class RecommendationService:
     """Read-only recommendation facade over one artefact."""
 
@@ -220,16 +238,15 @@ class RecommendationService:
         else:
             top = candidates[np.argsort(-scores[candidates])[:k]]
             selected = [int(i) for i in top]
-        candidate_scores = np.sort(scores[candidates])
+        percentiles = within_user_percentile(
+            scores, candidates, np.asarray(selected, dtype=np.int64)
+        )
 
         items = []
-        for rank, item_idx in enumerate(selected, start=1):
+        for rank, (item_idx, percentile) in enumerate(
+            zip(selected, percentiles, strict=True), start=1
+        ):
             reasons = self._safe_explain(user_idx, item_idx) if explain else []
-            # Within-user percentile: fraction of unseen candidates at or below
-            # this score.  Unlike the raw score it is comparable across users
-            # and is a deterministic, distribution-free confidence signal.
-            position = int(np.searchsorted(candidate_scores, scores[item_idx], side="right"))
-            percentile = position / max(candidate_scores.size, 1)
             items.append(
                 Recommendation(
                     item_id=self.item_ids[item_idx],

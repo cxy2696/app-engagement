@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-11-11T17:29:12.225885+00:00",
+  "passed": true,
+  "package_version": "2.2.0",
+  "python": "3.12.3 (v3.12.3:f6650f9ad7, Apr  9 2024, 08:18:47) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "runtime_sec": 63.69382525001129,
+  "dataset_fingerprint": "2b8d9290d5614afa22f6",
+  "n_users": 34024,
+  "n_items": 9848,
+  "checks": [
+    {
+      "check": "dataset fingerprint",
+      "passed": true,
+      "detail": "2b8d9290d5614afa22f6 == 2b8d9290d5614afa22f6"
+    },
+    {
+      "check": "train matrix",
+      "passed": true,
+      "detail": "2,077,959 nnz, digest 358d16c6d8c459de799e"
+    },
+    {
+      "check": "test matrix",
+      "passed": true,
+      "detail": "561,231 nnz, digest 3077922bb79997291bbf"
+    },
+    {
+      "check": "item-kNN state",
+      "passed": true,
+      "detail": "all state arrays byte-identical"
+    },
+    {
+      "check": "item-kNN scores",
+      "passed": true,
+      "detail": "max abs diff 0.000e+00"
+    },
+    {
+      "check": "evaluation metrics",
+      "passed": true,
+      "detail": "max metric diff 0.000e+00"
+    },
+    {
+      "check": "domain labels do not change panel matrices",
+      "passed": true,
+      "detail": "train/test CSR byte-identical under a different domain label"
+    },
+    {
+      "check": "generic profile builds",
+      "passed": true,
+      "detail": "40 users x 15 items, domain=generic-retail"
+    },
+    {
+      "check": "generic blocklist empty",
+      "passed": true,
+      "detail": "no app blocklist applied"
+    },
+    {
+      "check": "percentile monotone invariance",
+      "passed": true,
+      "detail": "max diff 0.000e+00"
+    }
+  ],
+  "caveats": [
+    "Item-kNN is deterministic; ALS/MetaPath2Vec are seeded but not guaranteed bitwise across hardware/library builds.",
+    "The generic profile is synthetic and demonstrates metadata/domain invariance, not external validity.",
+    "The panel benchmark is one month pair; reproducibility is not a claim of generalisation."
+  ]
+}

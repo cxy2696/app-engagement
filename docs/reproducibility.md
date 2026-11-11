@@ -59,7 +59,17 @@ engagegraph evaluate \
 
 `evaluate` refuses to run if the artefact and dataset fingerprints differ. That guard prevents the common failure of evaluating a model against a silently rebuilt dataset.
 
-## 6. CI
+## 6. End-to-end verification
+
+```bash
+make verify
+```
+
+This rebuilds the benchmark twice, compares byte-level matrices and item-kNN
+state, evaluates both models, and checks domain-label invariance. The result is
+written to `reports/verification.md`/`.json`. See [`verification.md`](verification.md).
+
+## 7. CI
 
 The GitHub Actions workflow runs:
 
@@ -71,14 +81,14 @@ The GitHub Actions workflow runs:
 
 CI never downloads the panel data; the tests use synthetic fixtures. The real benchmark is reproduced locally or in a protected job with access to the exports.
 
-## 7. Known non-reproducibility
+## 8. Known non-reproducibility
 
 - BLAS threading can change floating-point summation order; ranking ties may flip.
 - PyG random-walk order can vary across versions.
 - App labels can change between exports (vendor renaming); the catalogue is snapshot-specific.
 - Panel composition changes monthly; comparing across snapshots requires re-running the full protocol, not just the model.
 
-## 8. Reporting checklist
+## 9. Reporting checklist
 
 When publishing a result, include:
 

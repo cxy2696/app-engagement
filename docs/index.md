@@ -13,6 +13,7 @@ Start here:
 - [API](api.md) — endpoints, examples, errors.
 - [Deployment](deployment.md) — local, Docker, reverse proxy.
 - [Operations](operations.md) — SLOs, monitoring, retraining, incidents.
+- [Verification](verification.md) — determinism, domain invariance, mathematical invariants.
 - [Reproducibility](reproducibility.md) — seeds, fingerprints, CI.
 - [Governance](governance.md) — change control, releases, ethics.
 - [FAQ](faq.md) — common questions.

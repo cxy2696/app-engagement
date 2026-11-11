@@ -13,6 +13,7 @@ for at-a-glance decisions.
 | Technical report (PDF) | [paper/engagegraph-report.pdf](../paper/engagegraph-report.pdf) |
 | Evaluation report | [reports/evaluation-report.md](../reports/evaluation-report.md) |
 | Legacy AUC audit | [reports/legacy-audit.md](../reports/legacy-audit.md) |
+| Reproducibility verification | [reports/verification.md](../reports/verification.md) |
 | API documentation | <http://127.0.0.1:8000/docs> (local service) |
 | Generality guide | [generality.md](generality.md) |
 | Domain profiles | [profiles/](../profiles/) |
