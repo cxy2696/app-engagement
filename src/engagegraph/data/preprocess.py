@@ -132,8 +132,46 @@ def _sha256(path: str | Path, chunk_size: int = 1 << 20) -> str:
     return digest.hexdigest()
 
 
-def _read_month(path: str, columns: list[str]) -> pd.DataFrame:
-    return pd.read_parquet(path, columns=columns)
+def _read_table(path: str, columns: list[str], file_format: str = "auto") -> pd.DataFrame:
+    """Read a Parquet, CSV, or JSONL interaction table.
+
+    The reader is intentionally strict: missing requested columns raise a
+    ``ValueError`` naming the file and the missing columns, rather than letting a
+    downstream groupby fail with an opaque KeyError.
+    """
+
+    source = Path(path)
+    if not source.exists():
+        raise FileNotFoundError(f"interaction file not found: {source}")
+    suffix = source.suffix.lower()
+    kind = file_format
+    if kind == "auto":
+        if suffix in {".parquet", ".pq"}:
+            kind = "parquet"
+        elif suffix in {".csv", ".tsv", ".txt"}:
+            kind = "csv"
+        elif suffix in {".jsonl", ".ndjson"}:
+            kind = "jsonl"
+        else:
+            raise ValueError(
+                f"cannot infer format for {source}; set data.format to parquet/csv/jsonl"
+            )
+    if kind == "parquet":
+        frame = pd.read_parquet(source)
+    elif kind == "csv":
+        sep = "\t" if suffix == ".tsv" else ","
+        frame = pd.read_csv(source, sep=sep, low_memory=False)
+    elif kind == "jsonl":
+        frame = pd.read_json(source, lines=True)
+    else:  # pragma: no cover - schema guard
+        raise ValueError(f"unsupported format: {kind}")
+    missing = [column for column in columns if column not in frame.columns]
+    if missing:
+        raise ValueError(
+            f"{source} is missing column(s): {', '.join(missing)}; "
+            f"found: {', '.join(map(str, frame.columns))}"
+        )
+    return frame.loc[:, columns].copy()
 
 
 def _select_catalog(
@@ -205,32 +243,46 @@ def _build_csr(
 
 
 def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
-    """Execute the full January -> February benchmark construction."""
+    """Execute the full train-period -> test-period benchmark construction."""
 
-    jan_raw = _read_month(config.jan_path, [config.user_col, config.item_col, config.weight_col])
-    feb_raw = _read_month(config.feb_path, [config.user_col, config.item_col, config.weight_col])
+    weight_column = config.weight_col or "__weight__"
+    read_columns = [config.user_col, config.item_col]
+    if config.weight_col is not None:
+        read_columns.append(config.weight_col)
+    if config.time_col is not None:
+        read_columns.append(config.time_col)
+
+    train_raw = _read_table(config.train_file, read_columns, config.format)
+    test_raw = _read_table(config.test_file, read_columns, config.format)
+    if config.weight_col is None:
+        train_raw["__weight__"] = 1.0
+        test_raw["__weight__"] = 1.0
 
     if verbose:
-        print(f"raw January rows: {len(jan_raw):,}")
-        print(f"raw February rows: {len(feb_raw):,}")
+        domain = config.domain
+        print(
+            f"domain: {domain.name} ({domain.item_label_plural}, weights={config.weight_transform})"
+        )
+        print(f"raw train rows: {len(train_raw):,}")
+        print(f"raw test rows : {len(test_raw):,}")
 
     jan, jan_quality = clean_interactions(
-        jan_raw,
+        train_raw,
         user_col=config.user_col,
         item_col=config.item_col,
-        weight_col=config.weight_col,
+        weight_col=weight_column,
         normalize_names=config.normalize_names,
         drop_empty=config.drop_empty,
     )
     feb, feb_quality = clean_interactions(
-        feb_raw,
+        test_raw,
         user_col=config.user_col,
         item_col=config.item_col,
-        weight_col=config.weight_col,
+        weight_col=weight_column,
         normalize_names=config.normalize_names,
         drop_empty=config.drop_empty,
     )
-    del jan_raw, feb_raw
+    del train_raw, test_raw
 
     # The catalogue and clipping thresholds are estimated on January only.
     catalog, catalog_table = _select_catalog(jan, config.max_items, config.min_item_users)
@@ -296,9 +348,19 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
     history_hist, _ = np.histogram(history_counts, bins=bins)
     popularity_quantiles = np.quantile(popularity, [0.5, 0.75, 0.9, 0.95, 0.99]).tolist()
 
+    domain_payload = config.domain.model_dump(mode="json")
     stats: dict[str, Any] = {
-        "months": {"train": "January", "test": "February"},
-        "task": "next-month new-app adoption ranking",
+        "domain": domain_payload,
+        "dataset_name": config.domain.dataset_name,
+        "task": config.domain.task_name,
+        "months": {
+            "train": config.domain.train_period_label,
+            "test": config.domain.test_period_label,
+        },
+        "periods": {
+            "train": config.domain.train_period_label,
+            "test": config.domain.test_period_label,
+        },
         "n_users": len(user_ids),
         "n_items": len(item_ids),
         "n_train_interactions": int(train.nnz),
@@ -309,9 +371,13 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
         "mean_targets_per_eval_user": float(eval_counts.mean()) if len(eval_counts) else 0.0,
         "median_targets_per_eval_user": float(np.median(eval_counts)) if len(eval_counts) else 0.0,
         "february_users": len(feb_users),
+        "test_period_users": len(feb_users),
         "cold_start_february_users": int(cold_users),
+        "cold_start_test_users": int(cold_users),
         "catalog_coverage_of_february_rows": catalog_coverage,
+        "catalog_coverage_of_test_rows": catalog_coverage,
         "catalog_items_total_january": int(jan["item"].nunique()),
+        "catalog_items_total_train": int(jan["item"].nunique()),
         "catalog_item_support_min": int(config.min_item_users),
         "catalog_size_cap": config.max_items,
         "weight_transform": config.weight_transform,
@@ -339,6 +405,8 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
     }
 
     quality = {
+        "train": jan_quality.as_dict(),
+        "test": feb_quality.as_dict(),
         "january": jan_quality.as_dict(),
         "february": feb_quality.as_dict(),
         "catalog": {
@@ -353,8 +421,10 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
         "train_nnz": int(train.nnz),
         "test_nnz": int(test.nnz),
         "config": config.model_dump(mode="json"),
-        "jan_sha256": _sha256(config.jan_path),
-        "feb_sha256": _sha256(config.feb_path),
+        "train_sha256": _sha256(config.train_file),
+        "test_sha256": _sha256(config.test_file),
+        "jan_sha256": _sha256(config.train_file),
+        "feb_sha256": _sha256(config.test_file),
     }
     fingerprint = hashlib.sha256(
         json.dumps(fingerprint_payload, sort_keys=True).encode("utf-8")
@@ -376,16 +446,20 @@ def dataset_summary(dataset: Dataset) -> str:
     """Human-readable one-screen summary used by ``engagegraph data stats``."""
 
     stats = dataset.stats
+    domain = stats.get("domain", {})
+    user_label = domain.get("user_label_plural", "users")
+    item_label = domain.get("item_label_plural", "items")
     lines = [
         f"Dataset fingerprint : {dataset.fingerprint}",
+        f"Domain              : {domain.get('name', 'generic')} ({item_label})",
         f"Users x items       : {dataset.n_users:,} x {dataset.n_items:,}",
         f"Train interactions  : {stats['n_train_interactions']:,} (density {stats['density']:.2%})",
         f"Test targets        : {stats['n_test_interactions']:,} across "
         f"{stats['eval_users']:,} users",
         f"Targets per user    : mean {stats['mean_targets_per_eval_user']:.1f}, "
         f"median {stats['median_targets_per_eval_user']:.0f}",
-        f"February cold users : {stats['cold_start_february_users']:,}",
-        f"Catalogue coverage  : {stats['catalog_coverage_of_february_rows']:.1%} of "
-        "February rows for warm users",
+        f"Cold-start users    : {stats.get('cold_start_test_users', stats.get('cold_start_february_users', 0)):,}",
+        f"Catalogue coverage  : {stats.get('catalog_coverage_of_test_rows', stats.get('catalog_coverage_of_february_rows', 0)):.1%} of "
+        f"{domain.get('test_period_label', 'test period')} rows for warm {user_label}",
     ]
     return "\n".join(lines)
