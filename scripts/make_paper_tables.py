@@ -97,7 +97,9 @@ def main() -> int:
     figure_dir.mkdir(parents=True, exist_ok=True)
     for source in Path("reports/figures").glob("*.png"):
         shutil.copy2(source, figure_dir / source.name)
-    print(f"wrote paper/metrics.tex and paper/tables.tex ({len(results)} models, {len(comparisons)} comparisons)")
+    print(
+        f"wrote paper/metrics.tex and paper/tables.tex ({len(results)} models, {len(comparisons)} comparisons)"
+    )
     return 0
 
 
