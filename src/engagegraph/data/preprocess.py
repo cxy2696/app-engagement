@@ -427,7 +427,14 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
     # filesystem location or display vocabulary. Moving a file or renaming a
     # domain label must not invalidate a reproducible dataset.
     fingerprint_config = config.model_dump(mode="json")
-    for metadata_key in ("jan_path", "feb_path", "train_path", "test_path", "domain", "weight_unit"):
+    for metadata_key in (
+        "jan_path",
+        "feb_path",
+        "train_path",
+        "test_path",
+        "domain",
+        "weight_unit",
+    ):
         fingerprint_config.pop(metadata_key, None)
     fingerprint_payload = {
         "user_ids": user_ids,
