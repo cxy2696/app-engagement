@@ -8,7 +8,7 @@ Temporal next-item recommendation on panel data: a reproducible benchmark, four 
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-[Showcase](docs/showcase.md) · [Technical report](paper/engagegraph-report.pdf) · [Evaluation](reports/evaluation-report.md) · [Verification](docs/verification.md) · [Release](https://github.com/cxy2696/app-engagement/releases)
+[Showcase](docs/showcase.md) · [Technical report](paper/engagegraph-report.pdf) · [Evaluation](reports/evaluation-report.md) · [Verification](docs/reproducibility.md#6-verification) · [Release](https://github.com/cxy2696/app-engagement/releases)
 
 ![EngageGraph dashboard](docs/assets/dashboard.png)
 
@@ -108,8 +108,7 @@ Jan-Feb-parquet/   original aggregated exports (research use only)
 | [Methodology](docs/methodology.md) | Task, estimators, leakage controls, statistics |
 | [Algorithm notes](docs/algorithm.md) | Item-kNN scoring, percentiles, decision policy |
 | [Evaluation](docs/evaluation.md) | Commands and metric definitions |
-| [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, environment |
-| [Verification](docs/verification.md) | Determinism, domain invariance, invariants |
+| [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, CI, verification |
 | [Data card](docs/data-card.md) | Provenance, schema, quality, privacy |
 | [Model card](docs/model-card.md) | Use, metrics, limitations |
 | [Generality](docs/generality.md) | Adapting to another catalogue |
@@ -118,6 +117,7 @@ Jan-Feb-parquet/   original aggregated exports (research use only)
 | [Deployment](docs/deployment.md) | Docker, proxy, configuration |
 | [Operations](docs/operations.md) | SLOs, monitoring, retraining, incidents |
 | [Showcase](docs/showcase.md) | Screens, links, reference result |
+| [Glossary](docs/glossary.md) | Terms and symbols |
 | [Governance](docs/governance.md) | Change control and releases |
 | [中文说明](README.zh-CN.md) | 中文快速开始 |
 

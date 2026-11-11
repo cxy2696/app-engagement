@@ -8,7 +8,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-[展示页](docs/showcase.md) · [技术报告](paper/engagegraph-report.pdf) · [评估报告](reports/evaluation-report.md) · [可复现性验证](docs/verification.md) · [Release](https://github.com/cxy2696/app-engagement/releases)
+[展示页](docs/showcase.md) · [技术报告](paper/engagegraph-report.pdf) · [评估报告](reports/evaluation-report.md) · [可复现性验证](docs/reproducibility.md#6-verification) · [Release](https://github.com/cxy2696/app-engagement/releases)
 
 ![EngageGraph 仪表盘](docs/assets/dashboard.png)
 
@@ -103,8 +103,7 @@ Jan-Feb-parquet/   原始聚合导出（仅研究复现）
 | [Methodology](docs/methodology.md) | 任务、估计量、泄漏控制、统计 |
 | [Algorithm notes](docs/algorithm.md) | item-kNN、百分位、决策规则 |
 | [Evaluation](docs/evaluation.md) | 命令与指标定义 |
-| [Reproducibility](docs/reproducibility.md) | 种子、指纹、环境 |
-| [Verification](docs/verification.md) | 确定性、领域不变性、数学不变量 |
+| [Reproducibility](docs/reproducibility.md) | 种子、指纹、CI、验证 |
 | [Data card](docs/data-card.md) | 来源、字段、质量、隐私 |
 | [Model card](docs/model-card.md) | 适用范围、指标、局限 |
 | [Generality](docs/generality.md) | 适配其他物品目录 |
@@ -113,6 +112,7 @@ Jan-Feb-parquet/   原始聚合导出（仅研究复现）
 | [Deployment](docs/deployment.md) | Docker、代理、配置 |
 | [Operations](docs/operations.md) | SLO、监控、重训练、事故 |
 | [Showcase](docs/showcase.md) | 截图、链接、参考结果 |
+| [Glossary](docs/glossary.md) | 术语与符号 |
 | [Governance](docs/governance.md) | 变更控制与发布 |
 
 ## 数据与许可

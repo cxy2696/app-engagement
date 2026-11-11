@@ -59,15 +59,33 @@ engagegraph evaluate \
 
 `evaluate` refuses to run if the artefact and dataset fingerprints differ. That guard prevents the common failure of evaluating a model against a silently rebuilt dataset.
 
-## 6. End-to-end verification
+## 6. Verification
 
-```bash
-make verify
-```
+`make verify` rebuilds the benchmark twice from `configs/benchmark.yaml` and
+compares the results, then builds the synthetic generic-retail profile. It requires
+the panel exports and runs locally or in a protected job, not in CI.
 
-This rebuilds the benchmark twice, compares byte-level matrices and item-kNN
-state, evaluates both models, and checks domain-label invariance. The result is
-written to `reports/verification.md`/`.json`. See [`verification.md`](verification.md).
+| Check | Pass criterion |
+| --- | --- |
+| Dataset determinism | Identical fingerprint and byte-identical CSR matrices |
+| Item-kNN state | All state arrays byte-identical |
+| Scores | Exact float equality on the sampled users |
+| Metrics | Zero difference across all reported metrics |
+| Domain invariance | Only the `DomainConfig` changes; train/test matrices stay byte-identical |
+| Generic profile | Builds 40 × 15 with an empty blocklist |
+| Percentile | Invariant under a strictly increasing score transform |
+
+The latest result is in [`reports/verification.md`](../reports/verification.md)
+and [`reports/verification.json`](../reports/verification.json). A PASS means
+the reference protocol is deterministic on the recorded environment and that
+domain labels are metadata, not model inputs. It does not mean the model is
+valid for another market or month.
+
+The fast mathematical invariants run in CI (`tests/test_math_verification.py`):
+item-kNN equals a brute-force cosine computation on a dense fixture; percentile
+ties use the upper rank; NDCG/Recall/MAP/HitRate are unchanged by a strictly
+increasing score transform; changing the domain vocabulary leaves matrices and
+scores identical; changing the test matrix does not change fitted scores.
 
 ## 7. CI
 
