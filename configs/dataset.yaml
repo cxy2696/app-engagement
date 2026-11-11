@@ -12,3 +12,37 @@ weight_transform: log1p
 normalize_names: true
 drop_empty: true
 seed: 42
+
+domain:
+  name: app-engagement
+  dataset_name: U.S. mobile app panel (January--February 2024)
+  user_label: panelist
+  user_label_plural: panelists
+  item_label: app
+  item_label_plural: apps
+  interaction_label: app interaction
+  catalog_label: app catalogue
+  task_name: next-month new-app adoption ranking
+  train_period_label: January 2024
+  test_period_label: February 2024
+  tagline: >-
+    A reproducible pipeline for panel-scale app engagement: leakage-free temporal
+    splits, strong baselines, calibrated evaluation, and explanations grounded in
+    January co-usage.
+  blocklist:
+    - Android System
+    - Settings
+    - Permission controller
+    - System UI
+    - Phone
+    - Call
+    - Camera
+    - Samsung Gallery
+    - Google Play services
+    - Samsung One UI Home
+    - Clock by Samsung Electronics Co.,  Ltd.
+    - Google Photos
+    - VpnDialogs
+    - CaptivePortalLogin
+    - Media and devices
+    - MobileXpression Panel

@@ -5,15 +5,13 @@ This guide gives the exact commands, definitions, and expected outputs for repro
 ## 1. Build the dataset
 
 ```bash
-engagegraph data build \
-  --jan Jan-Feb-parquet/jan_aggregated.parquet \
-  --feb Jan-Feb-parquet/feb_aggregated.parquet \
-  --out data/processed
+engagegraph data build --config configs/benchmark.yaml --out data/processed
 ```
 
-Expected summary (v2.0.0, default config):
+Expected summary (v2.1.0, default config):
 
 ```text
+Domain              : app-engagement (apps)
 Users x items       : 34,024 x 9,848
 Train interactions  : 2,077,959 (density 0.62%)
 Test targets        : 561,231 across 28,286 users

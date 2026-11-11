@@ -75,6 +75,13 @@ Full protocol: [`methodology.md`](methodology.md).
 - If the vendor provides a codebook, update the weight-unit field and re-run the sensitivity analysis; do not silently change units.
 - Report data issues at <https://github.com/cxy2696/app-engagement/issues>.
 
-## 9. Citation
+## 9. Other domains
+
+The data card describes the app reference dataset. For the generic data
+contract and how to adapt the engine to products, content, or SaaS features,
+see [`generality.md`](generality.md). The app blocklist and millisecond weight
+assumption live in the app profile, not in the engine.
+
+## 10. Citation
 
 If you use the data, cite the repository and, when available, the panel vendor. The repository's [`CITATION.cff`](../CITATION.cff) provides a software citation; it does not grant rights to the data.

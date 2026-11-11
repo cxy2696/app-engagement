@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="EngageGraph — reproducible next-app recommendations with auditable explanations." />
-  <title>EngageGraph · app engagement, made legible</title>
+  <meta name="description" content="EngageGraph — reproducible next-item recommendations with auditable explanations." />
+  <title>EngageGraph · engagement, made legible</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
@@ -33,11 +33,11 @@
 
   <main>
     <section class="hero">
-      <p class="eyebrow">Temporal app-adoption benchmark · January → February 2024</p>
-      <h1>Next-app recommendations<br /><em>you can audit.</em></h1>
-      <p class="lede">
-        A reproducible pipeline for panel-scale app engagement: leakage-free temporal splits,
-        strong baselines, calibrated evaluation, and explanations grounded in January co-usage.
+      <p class="eyebrow" id="hero-eyebrow">Temporal engagement benchmark</p>
+      <h1>Next-<span id="hero-item">item</span> recommendations<br /><em>you can audit.</em></h1>
+      <p class="lede" id="hero-copy">
+        A reproducible pipeline for temporal engagement: leakage-free splits, strong baselines,
+        calibrated evaluation, and explanations grounded in training-period co-usage.
       </p>
       <div class="hero-actions">
         <a class="button button-primary" href="#workspace">Explore a recommendation</a>
@@ -46,9 +46,9 @@
     </section>
 
     <section class="kpis" aria-label="Dataset and model summary">
-      <article class="kpi"><span class="kpi-label">Panelists</span><strong id="kpi-users">—</strong><span class="kpi-note">January cohort</span></article>
-      <article class="kpi"><span class="kpi-label">Catalogue</span><strong id="kpi-items">—</strong><span class="kpi-note">apps with ≥10 users</span></article>
-      <article class="kpi"><span class="kpi-label">Interactions</span><strong id="kpi-interactions">—</strong><span class="kpi-note">user–app pairs</span></article>
+      <article class="kpi"><span class="kpi-label" id="kpi-users-label">Users</span><strong id="kpi-users">—</strong><span class="kpi-note" id="kpi-users-note">training cohort</span></article>
+      <article class="kpi"><span class="kpi-label" id="kpi-items-label">Items</span><strong id="kpi-items">—</strong><span class="kpi-note" id="kpi-items-note">items with ≥10 users</span></article>
+      <article class="kpi"><span class="kpi-label" id="kpi-interactions-label">Interactions</span><strong id="kpi-interactions">—</strong><span class="kpi-note" id="kpi-interactions-note">user–item pairs</span></article>
       <article class="kpi kpi-accent"><span class="kpi-label">NDCG@10</span><strong id="kpi-ndcg">—</strong><span class="kpi-note" id="kpi-model">active model</span></article>
     </section>
 
@@ -61,18 +61,18 @@
           </div>
           <div class="tabs" role="tablist" aria-label="Workspace mode">
             <button class="tab is-active" data-mode="recommend" role="tab" aria-selected="true">Recommend</button>
-            <button class="tab" data-mode="similar" role="tab" aria-selected="false">Similar apps</button>
+            <button class="tab" data-mode="similar" role="tab" aria-selected="false" id="tab-similar-label">Similar items</button>
           </div>
         </div>
 
         <div id="mode-recommend" class="mode">
-          <label class="field-label" for="user-input">Panelist ID</label>
+          <label class="field-label" for="user-input" id="user-field-label">User ID</label>
           <div class="input-row">
             <input id="user-input" type="text" spellcheck="false" autocomplete="off" placeholder="e.g. 1000123" />
             <button id="recommend-button" class="button button-primary">Recommend</button>
           </div>
-          <p class="hint">Pick a sample panelist or paste any ID from the January cohort.</p>
-          <div id="sample-users" class="chips" aria-label="Sample panelists"></div>
+          <p class="hint" id="user-hint">Pick a sample user or paste any ID from the training period.</p>
+          <div id="sample-users" class="chips" aria-label="Sample users"></div>
 
           <div class="control-grid">
             <label class="control">Results
@@ -98,13 +98,13 @@
         </div>
 
         <div id="mode-similar" class="mode" hidden>
-          <label class="field-label" for="item-input">App name</label>
+          <label class="field-label" for="item-input" id="item-field-label">Item name</label>
           <div class="input-row">
-            <input id="item-input" type="text" list="popular-apps" spellcheck="false" autocomplete="off" placeholder="Start typing an app…" />
+            <input id="item-input" type="text" list="popular-apps" spellcheck="false" autocomplete="off" placeholder="Start typing an item…" />
             <button id="similar-button" class="button button-primary">Find similar</button>
           </div>
           <datalist id="popular-apps"></datalist>
-          <p class="hint">Similarity is cosine over January co-usage or the active model's item geometry.</p>
+          <p class="hint" id="similar-hint">Similarity is cosine over training-period co-usage or the active model's item geometry.</p>
           <div id="similar-result" class="result-list" aria-live="polite"></div>
         </div>
       </div>
@@ -113,7 +113,7 @@
         <div class="panel-heading">
           <div>
             <p class="eyebrow" id="output-eyebrow">Recommendations</p>
-            <h2 id="output-title">Waiting for a panelist</h2>
+            <h2 id="output-title">Waiting for a user</h2>
           </div>
           <span id="latency" class="mono muted"></span>
         </div>
@@ -122,7 +122,7 @@
             <div class="empty-graph" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span>
             </div>
-            <p>Choose a panelist to see ranked apps, scores, and the January co-usage that supports each recommendation.</p>
+            <p id="empty-copy">Choose a user to see ranked items, scores, and the training-period co-usage that supports each recommendation.</p>
           </div>
         </div>
       </div>
@@ -133,9 +133,9 @@
         <p class="eyebrow">Evaluation</p>
         <h2>What the numbers mean</h2>
         <p class="body-copy">
-          Each January panelist is scored against the full catalogue, with January apps masked.
-          A hit is an app they adopt in February but had not used in January. Relevance is binary;
-          the primary metric is NDCG@10, macro-averaged over users.
+          Each training-period user is scored against the full catalogue, with training-period
+          items masked. A hit is an item they adopt in the test period but had not used before.
+          Relevance is binary; the primary metric is NDCG@10, macro-averaged over users.
         </p>
         <div class="table-wrap">
           <table id="metrics-table">
@@ -154,9 +154,9 @@
         <p class="eyebrow">Provenance</p>
         <h2>Model card</h2>
         <dl class="meta-list">
-          <div><dt>Task</dt><dd>Next-month new-app adoption ranking</dd></div>
-          <div><dt>Train window</dt><dd>January 2024</dd></div>
-          <div><dt>Test window</dt><dd>February 2024</dd></div>
+          <div><dt>Task</dt><dd id="meta-task">Next-period new-item adoption ranking</dd></div>
+          <div><dt>Train window</dt><dd id="meta-train">training period</dd></div>
+          <div><dt>Test window</dt><dd id="meta-test">test period</dd></div>
           <div><dt>Active model</dt><dd id="meta-model">—</dd></div>
           <div><dt>Dataset fingerprint</dt><dd id="meta-fingerprint" class="mono">—</dd></div>
           <div><dt>Artefact</dt><dd id="meta-artifact" class="mono">—</dd></div>
@@ -172,14 +172,14 @@
     </section>
 
     <section class="principles">
-      <article><span class="num">01</span><h3>Leakage-free by construction</h3><p>Mappings, catalogue, popularity, and model parameters are fit on January only. February is used once, for labels.</p></article>
+      <article><span class="num">01</span><h3>Leakage-free by construction</h3><p>Mappings, catalogue, popularity, and model parameters are fit on the training period only. The test period is used once, for labels.</p></article>
       <article><span class="num">02</span><h3>Baselines that can win</h3><p>Popularity and item-kNN are first-class. A graph model earns its place only when it beats them on paired users.</p></article>
       <article><span class="num">03</span><h3>Operable, not just runnable</h3><p>Versioned artefacts, health checks, Prometheus counters, feedback capture, Docker, and a retraining runbook.</p></article>
     </section>
   </main>
 
   <footer class="footer">
-    <span>EngageGraph 2.0 · built for reproducible app-engagement research</span>
+    <span id="footer-brand">EngageGraph · reproducible temporal engagement research</span>
     <span class="mono" id="footer-version"></span>
   </footer>
 
@@ -187,7 +187,7 @@
     <article class="result-card">
       <div class="rank"></div>
       <div class="result-main">
-        <div class="result-title-row"><h3 class="app-name"></h3><span class="score mono"></span></div>
+        <div class="result-title-row"><h3 class="app-name item-name"></h3><span class="score mono"></span></div>
         <div class="score-track"><span class="score-fill"></span></div>
         <ul class="reasons"></ul>
       </div>

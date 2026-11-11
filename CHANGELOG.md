@@ -2,6 +2,24 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] — 2026-11-12
+
+### Added
+
+- Domain profiles: `data.domain` controls user/item vocabulary, task labels, display tagline, and an optional serving blocklist.
+- Generic data paths and formats: `train_path`/`test_path`, CSV/TSV/JSONL/Parquet, optional `weight_col` (unit weights), optional `time_col`.
+- `profiles/app-engagement.yaml`, `profiles/generic-interactions.yaml`, and `profiles/ecommerce.example.yaml`, plus a synthetic generic CSV example.
+- Canonical `/v1/items/similar` endpoint; `/v1/apps/similar` remains a backwards-compatible alias.
+- Generic profile fields (`n_items`, `top_items`) while preserving 2.0 keys (`n_apps`, `top_apps`).
+- Domain-aware dashboard labels driven by `/v1/meta`.
+- `docs/generality.md` and tests for CSV ingestion, unit weights, domain blocklists, and API aliases.
+
+### Changed
+
+- Blocklist moved from a hard-coded serving default into the dataset domain profile. Legacy 2.0 artefacts still receive the historical app blocklist.
+- `ENGAGEGRAPH_BLOCKLIST` environment override added for operations.
+- CLI `data build` accepts a full profile via `--config` and `--train`/`--test` aliases.
+
 ## [2.0.0] — 2026-11-11
 
 ### Added

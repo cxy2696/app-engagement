@@ -1,0 +1,74 @@
+name: app-engagement
+seed: 42
+data:
+  train_path: Jan-Feb-parquet/jan_aggregated.parquet
+  test_path: Jan-Feb-parquet/feb_aggregated.parquet
+  user_col: PANELISTID
+  item_col: APPDESCRIPTION
+  weight_col: weight
+  weight_unit: ms
+  min_item_users: 10
+  min_user_items: 3
+  max_items: 10000
+  clip_quantile: 0.999
+  weight_transform: log1p
+  domain:
+    name: app-engagement
+    dataset_name: U.S. mobile app panel (January--February 2024)
+    user_label: panelist
+    user_label_plural: panelists
+    item_label: app
+    item_label_plural: apps
+    interaction_label: app interaction
+    catalog_label: app catalogue
+    task_name: next-month new-app adoption ranking
+    train_period_label: January 2024
+    test_period_label: February 2024
+    tagline: >-
+      A reproducible pipeline for panel-scale app engagement: leakage-free temporal
+      splits, strong baselines, calibrated evaluation, and explanations grounded in
+      January co-usage.
+    blocklist:
+      - Android System
+      - Settings
+      - Permission controller
+      - System UI
+      - Phone
+      - Call
+      - Camera
+      - Samsung Gallery
+      - Google Play services
+      - Samsung One UI Home
+      - Clock by Samsung Electronics Co.,  Ltd.
+      - Google Photos
+      - VpnDialogs
+      - CaptivePortalLogin
+      - Media and devices
+      - MobileXpression Panel
+evaluation:
+  k_values: [10, 20, 50]
+  primary_k: 10
+  bootstrap_samples: 1000
+  eval_batch_size: 512
+  coverage_k: 10
+models:
+  - name: popularity
+    params: {score: users, log_scale: true}
+  - name: itemknn
+    params: {k: 100, binary: true}
+  - name: als
+    params: {factors: 64, regularization: 0.05, iterations: 15, alpha: 40.0, random_state: 42}
+  - name: metapath2vec
+    params:
+      embedding_dim: 64
+      walk_length: 20
+      context_size: 5
+      walks_per_node: 5
+      num_negative_samples: 5
+      epochs: 5
+      batch_size: 128
+      learning_rate: 0.01
+      metapath: app-user-app
+      scoring: profile
+output_dir: artifacts/runs
+processed_dir: data/processed

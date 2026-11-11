@@ -2,6 +2,10 @@
 
 Base URL: `http://127.0.0.1:8000`. Interactive schema: `/docs`. OpenAPI JSON: `/openapi.json`. All responses are JSON unless noted.
 
+The API is domain-agnostic. `item` is the canonical resource; `app` aliases are
+kept for the reference dataset. Domain labels are reported by `/v1/meta` and the
+dashboard adapts automatically.
+
 ## 1. Conventions
 
 - `k` is an integer in `[1, 100]`; larger requests are rejected by validation.
@@ -17,7 +21,7 @@ Base URL: `http://127.0.0.1:8000`. Interactive schema: `/docs`. OpenAPI JSON: `/
 Liveness and model status. Always 200 if the process is alive.
 
 ```json
-{"status": "ok", "model_loaded": true, "version": "2.0.0", "error": null}
+{"status": "ok", "model_loaded": true, "version": "2.1.0", "error": null}
 ```
 
 ### `GET /readyz`
@@ -27,7 +31,7 @@ Readiness. 200 when an artefact is loaded, 503 otherwise.
 ### `GET /version`
 
 ```json
-{"name": "engagegraph", "version": "2.0.0"}
+{"name": "engagegraph", "version": "2.1.0"}
 ```
 
 ### `GET /v1/meta`
@@ -37,9 +41,11 @@ Model, dataset, and artefact provenance. The dashboard uses this on load.
 ```json
 {
   "model": {"model_type": "itemknn", "params": {"k": 100}},
+  "domain": {"name": "app-engagement", "item_label": "app", "item_label_plural": "apps"},
+  "labels": {"user": "panelist", "item": "app", "train_period": "January 2024"},
   "dataset": {"fingerprint": "822b17a4209c607144d1", "n_users": 34024, "n_items": 9848, "stats": {...}},
   "metrics": {"ndcg@10": 0.2685, "recall@10": 0.1522, ...},
-  "artifact": {"created_at": "...", "package_version": "2.0.0", "fingerprint": "..."},
+  "artifact": {"created_at": "...", "package_version": "2.1.0", "fingerprint": "..."},
   "sample_users": ["...", "..."]
 }
 ```
@@ -52,9 +58,10 @@ Global popularity ranking from the artefact's January history.
 {"items": [{"item_id": "Facebook", "score": 9.1, "rank": 1, "explanations": [...]}]}
 ```
 
-### `GET /v1/apps/similar?item_id=Spotify&k=10`
+### `GET /v1/items/similar?item_id=Spotify&k=10`
 
-Nearest catalogue apps. Returns 404 for an unknown app.
+Nearest catalogue items. `/v1/apps/similar` is a backwards-compatible alias.
+Returns 404 for an unknown item.
 
 ```json
 {"item_id": "Spotify", "items": [{"item_id": "YouTube Music", "score": 0.42, "rank": 1}]}
@@ -90,10 +97,18 @@ The serving layer removes a small blocklist of OS components and measurement age
 
 ### `GET /v1/users/{user_id}`
 
-January profile: number of apps and top apps by engagement. 404 for unknown users.
+Training-period profile: number of items and top items by engagement. 404 for
+unknown users. Generic keys are canonical; `n_apps`/`top_apps` remain for 2.0
+compatibility.
 
 ```json
-{"user_id": "1000123", "n_apps": 42, "top_apps": [{"item_id": "YouTube", "engagement": 9.8}]}
+{
+  "user_id": "1000123",
+  "n_items": 42,
+  "top_items": [{"item_id": "YouTube", "engagement": 9.8}],
+  "n_apps": 42,
+  "top_apps": [{"item_id": "YouTube", "engagement": 9.8}]
+}
 ```
 
 ### `POST /v1/recommendations`
@@ -122,7 +137,11 @@ Append-only feedback capture. Returns 202. If `ENGAGEGRAPH_API_KEY` is set, send
 }
 ```
 
-Events: `impression`, `click`, `install`, `dwell`, `dismiss`. Records are written to `ENGAGEGRAPH_FEEDBACK_DIR/YYYY-MM-DD.jsonl` with a hashed server-side user identifier.
+Events: `impression`, `click`, `install`, `dwell`, `dismiss`, `view`,
+`purchase`, `like`, `skip`. The `install` name is retained for app deployments;
+other domains can use `purchase`, `view`, or `like`. Records are written to
+`ENGAGEGRAPH_FEEDBACK_DIR/YYYY-MM-DD.jsonl` with a hashed server-side user
+identifier.
 
 ### `GET /metrics`
 

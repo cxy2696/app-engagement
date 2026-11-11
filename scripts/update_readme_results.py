@@ -39,7 +39,7 @@ def table() -> str:
         f"Dataset fingerprint: `{summary['dataset_fingerprint']}` · "
         f"Primary metric: `{summary['primary_metric']}` · "
         f"Evaluation users: {summary['dataset_stats']['eval_users']:,} · "
-        f"Cold-start users: {summary['dataset_stats']['cold_start_february_users']:,}. "
+        f"Cold-start users: {summary['dataset_stats'].get('cold_start_test_users', summary['dataset_stats'].get('cold_start_february_users', 0)):,}. "
         "Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.",
     ]
     return "\n".join(lines)

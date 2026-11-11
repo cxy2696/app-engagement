@@ -112,6 +112,8 @@ class BaseRecommender(ABC):
 
         if item_index < 0 or item_index >= dataset.n_items:
             return []
+        domain = dataset.stats.get("domain", {}) if dataset.stats else {}
+        train_label = domain.get("train_period_label", "the training period")
         column = dataset.train[:, item_index]
         row = column.toarray().ravel()
         seen = np.flatnonzero(dataset.train[user_index].toarray().ravel() > 0)
@@ -128,17 +130,23 @@ class BaseRecommender(ABC):
             reasons.append(
                 Explanation(
                     item_id=dataset.item_ids[source],
-                    reason=f"co-used with {dataset.item_ids[source]} in January",
+                    reason=f"co-used with {dataset.item_ids[source]} in {train_label}",
                     contribution=float(contributions[position]),
                 )
             )
         return reasons
 
     def explain_popularity(self, item_index: int, dataset: Dataset) -> list[Explanation]:
+        domain = dataset.stats.get("domain", {}) if dataset.stats else {}
+        user_plural = domain.get("user_label_plural", "users")
+        train_label = domain.get("train_period_label", "the training period")
         return [
             Explanation(
                 item_id=dataset.item_ids[item_index],
-                reason=f"used by {int(self.item_popularity[item_index]):,} panelists in January",
+                reason=(
+                    f"used by {int(self.item_popularity[item_index]):,} "
+                    f"{user_plural} in {train_label}"
+                ),
                 contribution=float(self.item_popularity[item_index]),
             )
         ]

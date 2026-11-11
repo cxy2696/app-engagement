@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-11T16:01:45.427453+00:00",
-  "dataset_fingerprint": "a84b20b180409390ea2b",
+  "generated_at": "2026-11-11T16:34:20.815799+00:00",
+  "dataset_fingerprint": "2b8d9290d5614afa22f6",
   "primary_metric": "ndcg@10",
   "models": {
     "popularity": {
@@ -33,7 +33,7 @@
         "gini@10": 0.9965449850095058
       },
       "n_eval_users": 28286,
-      "runtime_sec": 3.605295874993317
+      "runtime_sec": 3.4848513750039274
     },
     "itemknn": {
       "metrics": {
@@ -65,7 +65,7 @@
         "gini@10": 0.9964045781820172
       },
       "n_eval_users": 28286,
-      "runtime_sec": 3.5509994169988204
+      "runtime_sec": 3.445815125000081
     },
     "als": {
       "metrics": {
@@ -97,7 +97,7 @@
         "gini@10": 0.9344659053776636
       },
       "n_eval_users": 28286,
-      "runtime_sec": 4.14057220799441
+      "runtime_sec": 3.4525379999977304
     },
     "metapath2vec": {
       "metrics": {
@@ -129,7 +129,7 @@
         "gini@10": 0.9978756810799843
       },
       "n_eval_users": 28286,
-      "runtime_sec": 3.8640582090010867
+      "runtime_sec": 3.7993725420092233
     }
   },
   "comparisons": [
@@ -174,11 +174,48 @@
     }
   ],
   "dataset": {
-    "months": {
-      "train": "January",
-      "test": "February"
+    "domain": {
+      "name": "app-engagement",
+      "dataset_name": "U.S. mobile app panel (January--February 2024)",
+      "user_label": "panelist",
+      "user_label_plural": "panelists",
+      "item_label": "app",
+      "item_label_plural": "apps",
+      "interaction_label": "app interaction",
+      "catalog_label": "app catalogue",
+      "task_name": "next-month new-app adoption ranking",
+      "train_period_label": "January 2024",
+      "test_period_label": "February 2024",
+      "tagline": "A reproducible pipeline for panel-scale app engagement: leakage-free temporal splits, strong baselines, calibrated evaluation, and explanations grounded in January co-usage.",
+      "blocklist": [
+        "Android System",
+        "Settings",
+        "Permission controller",
+        "System UI",
+        "Phone",
+        "Call",
+        "Camera",
+        "Samsung Gallery",
+        "Google Play services",
+        "Samsung One UI Home",
+        "Clock by Samsung Electronics Co.,  Ltd.",
+        "Google Photos",
+        "VpnDialogs",
+        "CaptivePortalLogin",
+        "Media and devices",
+        "MobileXpression Panel"
+      ]
     },
+    "dataset_name": "U.S. mobile app panel (January--February 2024)",
     "task": "next-month new-app adoption ranking",
+    "months": {
+      "train": "January 2024",
+      "test": "February 2024"
+    },
+    "periods": {
+      "train": "January 2024",
+      "test": "February 2024"
+    },
     "n_users": 34024,
     "n_items": 9848,
     "n_train_interactions": 2077959,
@@ -189,9 +226,13 @@
     "mean_targets_per_eval_user": 19.841299582832498,
     "median_targets_per_eval_user": 15.0,
     "february_users": 40001,
+    "test_period_users": 40001,
     "cold_start_february_users": 10875,
+    "cold_start_test_users": 10875,
     "catalog_coverage_of_february_rows": 0.9342052547655868,
+    "catalog_coverage_of_test_rows": 0.9342052547655868,
     "catalog_items_total_january": 74734,
+    "catalog_items_total_train": 74734,
     "catalog_item_support_min": 10,
     "catalog_size_cap": 10000,
     "weight_transform": "log1p",

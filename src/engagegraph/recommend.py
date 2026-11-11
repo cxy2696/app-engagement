@@ -7,6 +7,7 @@ All model and data provenance stays in the artefact.
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -19,11 +20,11 @@ from engagegraph.artifacts import Artifact
 from engagegraph.data.preprocess import Dataset
 from engagegraph.models.base import Explanation, Recommendation
 
-# Serving-side actionability filter.  These are OS components, measurement
-# agents, or pre-installed utilities rather than apps a user chooses to adopt.
-# The offline benchmark deliberately keeps the full January catalogue so that
-# the metric is reproducible; the product surface removes non-actionable items.
-DEFAULT_BLOCKLIST = frozenset(
+# Reference blocklist for the app-engagement profile.  It is *not* applied by
+# default: the active dataset's ``domain.blocklist`` controls serving.  Keeping
+# the list here makes the app profile importable from Python while other
+# domains stay untouched.
+APP_ENGAGEMENT_BLOCKLIST = frozenset(
     {
         "Android System",
         "Settings",
@@ -43,6 +44,9 @@ DEFAULT_BLOCKLIST = frozenset(
         "MobileXpression Panel",
     }
 )
+
+# Backwards-compatible alias for callers that imported the old constant.
+DEFAULT_BLOCKLIST = APP_ENGAGEMENT_BLOCKLIST
 
 
 @dataclass
@@ -86,6 +90,12 @@ class RecommendationService:
 
     def __init__(self, artifact: Artifact, blocklist: set[str] | None = None) -> None:
         self.artifact = artifact
+        self.domain = dict(artifact.stats.get("domain") or {})
+        self.user_label = self.domain.get("user_label", "user")
+        self.user_label_plural = self.domain.get("user_label_plural", "users")
+        self.item_label = self.domain.get("item_label", "item")
+        self.item_label_plural = self.domain.get("item_label_plural", "items")
+        self.train_period_label = self.domain.get("train_period_label", "train period")
         self.model = artifact.model
         self.history = artifact.history
         self.user_index = artifact.user_index
@@ -93,8 +103,19 @@ class RecommendationService:
         self.user_ids = artifact.user_ids
         self.item_ids = artifact.item_ids
         self.n_users, self.n_items = self.history.shape
-        blocked_names = DEFAULT_BLOCKLIST if blocklist is None else blocklist
-        self.blocked = {self.item_index[name] for name in blocked_names if name in self.item_index}
+        if blocklist is None:
+            if artifact.stats.get("domain") is None:
+                # Legacy 2.0 artefact: the only shipped data is the app panel,
+                # so preserve its historical serving behaviour.
+                blocklist = set(APP_ENGAGEMENT_BLOCKLIST)
+            else:
+                blocklist = set(self.domain.get("blocklist") or ())
+        env_blocklist = os.environ.get("ENGAGEGRAPH_BLOCKLIST", "")
+        if env_blocklist:
+            blocklist = set(blocklist) | {
+                name.strip() for name in env_blocklist.split(",") if name.strip()
+            }
+        self.blocked = {self.item_index[name] for name in blocklist if name in self.item_index}
         self.context = Dataset(
             train=self.history,
             test=sparse.csr_matrix((self.n_users, self.n_items), dtype=np.float32),
@@ -139,7 +160,7 @@ class RecommendationService:
                             item_id=self.item_ids[int(item_idx)],
                             reason=(
                                 f"used by {int(self.popularity[int(item_idx)]):,} "
-                                "panelists in January"
+                                f"{self.user_label_plural} in {self.train_period_label}"
                             ),
                             contribution=float(self.popularity[int(item_idx)]),
                         )
@@ -315,6 +336,9 @@ class RecommendationService:
         ]
         return {
             "user_id": user_id,
+            "n_items": int(end - start),
+            "top_items": top,
+            # Backwards-compatible keys for clients built against 2.0.
             "n_apps": int(end - start),
             "top_apps": top,
         }
@@ -334,6 +358,14 @@ class RecommendationService:
                 "package_version": self.artifact.manifest.get("package_version"),
                 "schema": self.artifact.manifest.get("artifact_schema_version"),
                 "fingerprint": self.artifact.manifest.get("artifact_fingerprint"),
+            },
+            "domain": self.domain,
+            "labels": {
+                "user": self.user_label,
+                "user_plural": self.user_label_plural,
+                "item": self.item_label,
+                "item_plural": self.item_label_plural,
+                "train_period": self.train_period_label,
             },
             "sample_users": self.sample_users,
             "serving_blocklist_size": len(self.blocked),

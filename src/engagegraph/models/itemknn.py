@@ -134,6 +134,9 @@ class ItemKNNRecommender(BaseRecommender):
     ) -> list[Explanation]:
         if self._sim_t is None:
             return super().explain(user_index, item_index, dataset, k)
+        domain = dataset.stats.get("domain", {}) if dataset.stats else {}
+        user_plural = domain.get("user_label_plural", "users")
+        item_label = domain.get("item_label", "item")
         column = self._sim_t[:, item_index].toarray().ravel()
         seen = np.flatnonzero(dataset.train[user_index].toarray().ravel() > 0)
         contributions = column[seen]
@@ -146,7 +149,9 @@ class ItemKNNRecommender(BaseRecommender):
             explanations.append(
                 Explanation(
                     item_id=dataset.item_ids[source],
-                    reason=f"users of {dataset.item_ids[source]} also used this app",
+                    reason=(
+                        f"{user_plural} of {dataset.item_ids[source]} also used this {item_label}"
+                    ),
                     contribution=float(contributions[position]),
                 )
             )

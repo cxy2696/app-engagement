@@ -27,17 +27,32 @@ def _print_json(payload: Any) -> None:
 
 
 def _data_config(args: argparse.Namespace) -> DataConfig:
-    defaults = DataConfig()
-    return DataConfig(
-        jan_path=args.jan or defaults.jan_path,
-        feb_path=args.feb or defaults.feb_path,
-        min_item_users=args.min_item_users,
-        min_user_items=args.min_user_items,
-        max_items=args.max_items,
-        weight_transform=args.weight_transform,
-        weight_unit=args.weight_unit,
-        clip_quantile=args.clip_quantile,
-    )
+    if getattr(args, "config", None):
+        import yaml
+
+        payload = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("data config must be a YAML mapping")
+        # Accept either a standalone DataConfig or a full Benchmark/Experiment
+        # profile; the latter is convenient because it also carries the domain.
+        config = DataConfig.model_validate(payload.get("data", payload))
+    else:
+        config = DataConfig()
+    overrides = {
+        "train_path": args.train,
+        "test_path": args.test,
+        "format": args.format,
+        "min_item_users": args.min_item_users,
+        "min_user_items": args.min_user_items,
+        "max_items": args.max_items,
+        "weight_transform": args.weight_transform,
+        "weight_unit": args.weight_unit,
+        "clip_quantile": args.clip_quantile,
+    }
+    # ``None`` means "keep the value from the config/default"; argparse uses
+    # explicit sentinels for every numeric override.
+    update = {key: value for key, value in overrides.items() if value is not None}
+    return config.model_copy(update=update) if update else config
 
 
 def cmd_data_build(args: argparse.Namespace) -> int:
@@ -202,25 +217,30 @@ def cmd_version(_: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="engagegraph",
-        description="Reproducible app-engagement analytics and next-app recommendation.",
+        description=(
+            "Reproducible temporal engagement analytics and next-item recommendation. "
+            "Domain labels are configured; the engine is not app-specific."
+        ),
     )
     parser.add_argument("--version", action="version", version=__version__)
     sub = parser.add_subparsers(dest="command", required=True)
 
     data = sub.add_parser("data", help="build and inspect processed datasets")
     data_sub = data.add_subparsers(dest="data_command", required=True)
-    build = data_sub.add_parser("build", help="aggregate monthly exports into a benchmark")
-    build.add_argument("--jan", default=None)
-    build.add_argument("--feb", default=None)
+    build = data_sub.add_parser("build", help="aggregate interaction exports into a benchmark")
+    build.add_argument("--config", default=None, help="optional DataConfig YAML")
+    build.add_argument("--train", "--jan", dest="train", default=None)
+    build.add_argument("--test", "--feb", dest="test", default=None)
     build.add_argument("--out", default="data/processed")
-    build.add_argument("--min-item-users", type=int, default=10)
-    build.add_argument("--min-user-items", type=int, default=3)
-    build.add_argument("--max-items", type=int, default=10_000)
+    build.add_argument("--format", choices=["auto", "parquet", "csv", "jsonl"], default=None)
+    build.add_argument("--min-item-users", type=int, default=None)
+    build.add_argument("--min-user-items", type=int, default=None)
+    build.add_argument("--max-items", type=int, default=None)
     build.add_argument(
-        "--weight-transform", choices=["log1p", "binary", "share", "raw"], default="log1p"
+        "--weight-transform", choices=["log1p", "binary", "share", "raw"], default=None
     )
-    build.add_argument("--weight-unit", choices=["ms", "s", "unknown"], default="ms")
-    build.add_argument("--clip-quantile", type=float, default=0.999)
+    build.add_argument("--weight-unit", choices=["ms", "s", "count", "unknown"], default=None)
+    build.add_argument("--clip-quantile", type=float, default=None)
     build.set_defaults(func=cmd_data_build)
 
     stats = data_sub.add_parser("stats", help="print dataset statistics")
@@ -247,7 +267,7 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate_cmd.add_argument("--json", action="store_true")
     evaluate_cmd.set_defaults(func=cmd_evaluate)
 
-    recommend = sub.add_parser("recommend", help="recommend apps for one user")
+    recommend = sub.add_parser("recommend", help="recommend items for one user")
     recommend.add_argument("--artifact", required=True)
     recommend.add_argument("--user", required=True)
     recommend.add_argument("--k", type=int, default=10)
@@ -256,7 +276,7 @@ def build_parser() -> argparse.ArgumentParser:
     recommend.add_argument("--json", action="store_true")
     recommend.set_defaults(func=cmd_recommend)
 
-    similar = sub.add_parser("similar", help="find similar apps")
+    similar = sub.add_parser("similar", help="find similar items")
     similar.add_argument("--artifact", required=True)
     similar.add_argument("--item", required=True)
     similar.add_argument("--k", type=int, default=10)

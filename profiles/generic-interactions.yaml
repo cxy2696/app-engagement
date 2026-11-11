@@ -1,0 +1,43 @@
+name: generic-interactions-example
+seed: 42
+data:
+  train_path: examples/generic/train.csv
+  test_path: examples/generic/test.csv
+  format: csv
+  user_col: user_id
+  item_col: item_id
+  weight_col: event_count
+  time_col: event_time
+  weight_unit: count
+  min_item_users: 2
+  min_user_items: 2
+  max_items: null
+  clip_quantile: 0.999
+  weight_transform: log1p
+  domain:
+    name: generic-retail
+    dataset_name: Synthetic retail events
+    user_label: shopper
+    user_label_plural: shoppers
+    item_label: product
+    item_label_plural: products
+    interaction_label: event
+    catalog_label: product catalogue
+    task_name: next-period product adoption ranking
+    train_period_label: January 2026
+    test_period_label: February 2026
+    tagline: >-
+      The same temporal ranking engine applied to a different domain: products,
+      shoppers, and event counts, with no application-specific assumptions.
+    blocklist: []
+evaluation:
+  k_values: [5, 10]
+  primary_k: 10
+  bootstrap_samples: 300
+models:
+  - name: popularity
+    params: {score: users, log_scale: true}
+  - name: itemknn
+    params: {k: 20, binary: false}
+output_dir: artifacts/runs/generic
+processed_dir: data/processed-generic

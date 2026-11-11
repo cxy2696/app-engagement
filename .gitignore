@@ -37,3 +37,5 @@ paper/*.fls
 paper/*.log
 paper/*.out
 paper/main.pdf
+
+data/processed-*/

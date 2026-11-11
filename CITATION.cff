@@ -1,13 +1,13 @@
 cff-version: 1.2.0
 message: "If you use EngageGraph, please cite this software and the metapath2vec / implicit-ALS papers where relevant."
 title: "EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction"
-abstract: "A leakage-free January-to-February app-adoption benchmark, four reference models, paired bootstrap evaluation, and an operable recommendation API."
+abstract: "A leakage-free January-to-February app-adoption benchmark, four reference models, paired bootstrap evaluation, and a domain-agnostic recommendation API with pluggable domain profiles."
 type: software
 license: Apache-2.0
 repository-code: "https://github.com/cxy2696/app-engagement"
 url: "https://github.com/cxy2696/app-engagement"
-version: 2.0.0
-date-released: 2026-11-11
+version: 2.1.0
+date-released: 2026-11-12
 authors:
   - family-names: Cui
     given-names: Xinyi

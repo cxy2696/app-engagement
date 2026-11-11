@@ -1,8 +1,9 @@
 # EngageGraph evaluation report
 
-Generated: 2026-11-11 16:01 UTC  
-Dataset fingerprint: `a84b20b180409390ea2b`  
-Package: `2.0.0`  
+Generated: 2026-11-11 16:34 UTC  
+Dataset fingerprint: `2b8d9290d5614afa22f6`  
+Package: `2.1.0`  
+Domain: `app-engagement`  
 Primary metric: **NDCG@10**
 
 ## Headline
@@ -24,7 +25,7 @@ Coverage and novelty are included because accuracy alone can hide a degenerate p
 | `als` vs `popularity` | -0.1357 | [-0.1380, -0.1335] | 0.0020 | 0.0060 |
 | `metapath2vec` vs `popularity` | -0.0712 | [-0.0731, -0.0692] | 0.0020 | 0.0060 |
 
-`n = 28,286` evaluation users; `10,875` February cold-start users are reported separately and are not in the personalised denominator.
+`n = 28,286` evaluation panelists; `10,875` February 2024 cold-start panelists are reported separately and are not in the personalised denominator.
 
 ## Per-K metrics
 
@@ -37,11 +38,11 @@ Coverage and novelty are included because accuracy alone can hide a degenerate p
 
 ## Dataset
 
-- Users x items: **34,024 x 9,848**
+- Panelists x apps: **34,024 x 9,848**
 - Train interactions: **2,077,959**
 - Test targets: **561,231**
 - Targets per evaluation user: mean **19.8**, median **15**
-- Catalogue coverage of February rows (warm users): **93.4%**
+- Catalogue coverage of February 2024 rows (warm panelists): **93.4%**
 - Weight transform: `log1p`; clip: `2,159,359,336`
 
 ## Protocol recap
@@ -56,7 +57,7 @@ Coverage differences matter: a model with higher NDCG but near-zero coverage is 
 
 ## Limitations
 
-- One panel, one January → February transition; no claim of generalisation to other markets.
+- One panel, one January 2024 -> February 2024 transition; no claim of generalisation to other markets.
 - Binary relevance; graded engagement is out of scope for the primary metric.
 - Offline evaluation; no position bias or online A/B evidence.
 - The data licence is unresolved; see [`DATA_LICENSE.md`](../DATA_LICENSE.md).

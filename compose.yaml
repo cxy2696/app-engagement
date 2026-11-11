@@ -1,7 +1,7 @@
 services:
   api:
     build: .
-    image: engagegraph:2.0.0
+    image: engagegraph:2.1.0
     ports:
       - "8000:8000"
     environment:

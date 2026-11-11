@@ -34,7 +34,7 @@ class FeedbackEvent(BaseModel):
     impression_id: str = Field(min_length=1, max_length=128)
     user_id: str = Field(min_length=1, max_length=256)
     item_id: str = Field(min_length=1, max_length=512)
-    event: str = Field(pattern="^(impression|click|install|dwell|dismiss)$")
+    event: str = Field(pattern="^(impression|click|install|dwell|dismiss|view|purchase|like|skip)$")
     surface: str = Field(default="api", max_length=64)
     dwell_seconds: float | None = Field(default=None, ge=0, le=86_400)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -121,8 +121,9 @@ def create_app(artifact_path: str | Path | None = None) -> FastAPI:
         title="EngageGraph API",
         version=__version__,
         description=(
-            "Next-app recommendations and app-similarity search from a "
-            "reproducible temporal benchmark. See /docs for the OpenAPI schema."
+            "Domain-agnostic next-item recommendations and item-similarity search "
+            "from a reproducible temporal benchmark. Domain labels come from the "
+            "loaded artefact. See /docs for the OpenAPI schema."
         ),
         lifespan=lifespan,
     )
@@ -209,7 +210,8 @@ def create_app(artifact_path: str | Path | None = None) -> FastAPI:
         items = service().popular(k)
         return {"items": [item.as_dict() for item in items]}
 
-    @app.get("/v1/apps/similar", tags=["catalog"])
+    @app.get("/v1/items/similar", tags=["catalog"])
+    @app.get("/v1/apps/similar", tags=["catalog"], include_in_schema=False)
     async def similar(
         item_id: str = Query(min_length=1, max_length=512),
         k: int = Query(default=10, ge=1, le=100),

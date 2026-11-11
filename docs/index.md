@@ -4,6 +4,7 @@ Start here:
 
 - [Methodology](methodology.md) — task, models, leakage controls, statistics.
 - [Evaluation guide](evaluation.md) — reproduce the benchmark and read the metrics.
+- [Generality](generality.md) — adapt the engine to products, content, SaaS, or another catalogue.
 - [Data card](data-card.md) — provenance, schema, quality, privacy, licence.
 - [Model card](model-card.md) — intended use, metrics, limitations.
 - [Architecture](architecture.md) — components and extension points.

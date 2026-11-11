@@ -20,15 +20,70 @@ class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class DomainConfig(StrictModel):
+    """Human-facing vocabulary for a deployment domain.
+
+    The model, matrices, and metrics are domain-agnostic.  This object only
+    controls labels used by the API/dashboard and the optional serving blocklist.
+    Keep it in the dataset config so an artefact carries its own vocabulary.
+    """
+
+    name: str = "generic"
+    dataset_name: str = "interaction panel"
+    user_label: str = "user"
+    user_label_plural: str = "users"
+    item_label: str = "item"
+    item_label_plural: str = "items"
+    interaction_label: str = "interaction"
+    catalog_label: str = "catalogue"
+    task_name: str = "next-period new-item adoption ranking"
+    train_period_label: str = "train period"
+    test_period_label: str = "test period"
+    tagline: str = (
+        "A reproducible pipeline for leakage-free temporal splits, honest baselines, "
+        "and auditable next-item recommendations."
+    )
+    blocklist: tuple[str, ...] = ()
+
+    @field_validator(
+        "name",
+        "dataset_name",
+        "user_label",
+        "user_label_plural",
+        "item_label",
+        "item_label_plural",
+        "interaction_label",
+        "catalog_label",
+        "task_name",
+        "train_period_label",
+        "test_period_label",
+        "tagline",
+    )
+    @classmethod
+    def _non_empty_label(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("domain labels must not be empty")
+        return value.strip()
+
+
 class DataConfig(StrictModel):
-    """How raw monthly interaction exports are converted into a benchmark."""
+    """How raw interaction exports are converted into a benchmark.
+
+    Two equivalent path styles are accepted: ``train_path``/``test_path`` (the
+    generic API) and the historical ``jan_path``/``feb_path`` aliases.  The
+    generic style wins when both are present.
+    """
 
     jan_path: str = "Jan-Feb-parquet/jan_aggregated.parquet"
     feb_path: str = "Jan-Feb-parquet/feb_aggregated.parquet"
+    train_path: str | None = None
+    test_path: str | None = None
+    format: Literal["auto", "parquet", "csv", "jsonl"] = "auto"
     user_col: str = "PANELISTID"
     item_col: str = "APPDESCRIPTION"
-    weight_col: str = "weight"
-    weight_unit: Literal["ms", "s", "unknown"] = "ms"
+    weight_col: str | None = "weight"
+    time_col: str | None = None
+    weight_unit: Literal["ms", "s", "count", "unknown"] = "ms"
     min_item_users: int = Field(default=10, ge=1)
     min_user_items: int = Field(default=3, ge=1)
     max_items: int | None = Field(default=10_000, ge=100)
@@ -37,19 +92,30 @@ class DataConfig(StrictModel):
     normalize_names: bool = True
     drop_empty: bool = True
     seed: int = 42
+    domain: DomainConfig = Field(default_factory=DomainConfig)
 
-    @field_validator("jan_path", "feb_path")
-    @classmethod
-    def _non_empty(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("path must not be empty")
-        return value
+    @property
+    def train_file(self) -> str:
+        return self.train_path or self.jan_path
+
+    @property
+    def test_file(self) -> str:
+        return self.test_path or self.feb_path
 
     @model_validator(mode="after")
-    def _different_months(self) -> DataConfig:
-        if Path(self.jan_path).resolve() == Path(self.feb_path).resolve():
-            raise ValueError("jan_path and feb_path must refer to different files")
+    def _different_periods(self) -> DataConfig:
+        if not self.train_file.strip() or not self.test_file.strip():
+            raise ValueError("train/test paths must not be empty")
+        if Path(self.train_file).resolve() == Path(self.test_file).resolve():
+            raise ValueError("train/test paths must refer to different files")
+        if self.weight_col is not None and not self.weight_col.strip():
+            raise ValueError("weight_col must be a column name or null")
         return self
+
+    def model_dump_domain(self) -> dict[str, Any]:
+        """Convenience for manifests without importing JSON helpers."""
+
+        return self.domain.model_dump(mode="json")
 
 
 class ModelConfig(StrictModel):
@@ -95,6 +161,7 @@ class ExperimentConfig(StrictModel):
     model: ModelConfig
     evaluation: EvaluationConfig = Field(default_factory=EvaluationConfig)
     output_dir: str = "artifacts/runs"
+    processed_dir: str | None = "data/processed"
 
     def fingerprint(self) -> str:
         """Stable SHA-256 of the resolved, JSON-serialisable config."""
@@ -109,6 +176,7 @@ class BenchmarkConfig(StrictModel):
     models: list[ModelConfig]
     evaluation: EvaluationConfig = Field(default_factory=EvaluationConfig)
     output_dir: str = "artifacts/runs"
+    processed_dir: str | None = "data/processed"
 
 
 def _read_yaml(path: str | Path) -> dict[str, Any]:

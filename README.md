@@ -1,6 +1,6 @@
 # EngageGraph
 
-**Reproducible app-engagement analytics and next-app recommendation — built to be operated, not just demonstrated.**
+**Reproducible temporal engagement analytics and next-item recommendation — with an app-engagement reference benchmark, built to be operated rather than demonstrated.**
 
 [![CI](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml/badge.svg)](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/cxy2696/app-engagement)](https://github.com/cxy2696/app-engagement/releases)
@@ -50,10 +50,7 @@ pip install -e ".[graph]"
 The repository already contains the January/February aggregated exports under `Jan-Feb-parquet/`.
 
 ```bash
-engagegraph data build \
-  --jan Jan-Feb-parquet/jan_aggregated.parquet \
-  --feb Jan-Feb-parquet/feb_aggregated.parquet \
-  --out data/processed
+engagegraph data build --config configs/dataset.yaml --out data/processed
 ```
 
 This applies the published filtering protocol: apps with ≥10 January users, users with ≥3 catalogue apps, a 10,000-item cap, and a 99.9th-percentile weight clip before `log1p`.
@@ -84,6 +81,43 @@ Open <http://127.0.0.1:8000> for the dashboard, <http://127.0.0.1:8000/docs> for
 curl "http://127.0.0.1:8000/v1/users/<panelist-id>/recommendations?k=5"
 ```
 
+## One engine, many domains
+
+Apps are the reference dataset, not a hard-coded assumption. The engine,
+models, evaluation, artefact format, and API operate on generic user × item
+interactions. A small `domain` profile supplies vocabulary, file layout, and an
+optional serving blocklist:
+
+```yaml
+data:
+  train_path: data/your_domain/train.parquet
+  test_path: data/your_domain/test.parquet
+  user_col: customer_id
+  item_col: sku
+  weight_col: revenue
+  weight_unit: unknown
+  domain:
+    name: ecommerce
+    user_label: customer
+    item_label: product
+    item_label_plural: products
+    task_name: next-period product adoption ranking
+    train_period_label: last quarter
+    test_period_label: current quarter
+    blocklist: []
+```
+
+The API reports the domain labels in `/v1/meta`; the dashboard adapts its
+labels; the same evaluation and operations apply. See
+[`docs/generality.md`](docs/generality.md) and the ready-to-copy
+[`profiles/`](profiles/) directory (app, generic retail CSV, e-commerce
+template).
+
+```bash
+engagegraph data build --config profiles/generic-interactions.yaml --out data/processed-generic
+engagegraph benchmark --config profiles/generic-interactions.yaml
+```
+
 ## Results
 
 <!-- RESULTS_TABLE_START -->
@@ -94,7 +128,7 @@ curl "http://127.0.0.1:8000/v1/users/<panelist-id>/recommendations?k=5"
 | `metapath2vec` | **0.1639** [0.1622, 0.1660] | 0.0933 | 0.0772 | 0.015 | 1.661 |
 | `als` | **0.0993** [0.0974, 0.1013] | 0.0798 | 0.0505 | 0.317 | 4.830 |
 
-Dataset fingerprint: `a84b20b180409390ea2b` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
+Dataset fingerprint: `2b8d9290d5614afa22f6` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
 
 **Technical report:** [EngageGraph (PDF)](paper/engagegraph-report.pdf) · **Evaluation report:** [reports/evaluation-report.md](reports/evaluation-report.md) · **Legacy audit:** [reports/legacy-audit.md](reports/legacy-audit.md)
@@ -159,6 +193,7 @@ Jan-Feb-parquet/          # original aggregated exports (research use only)
 | [API](docs/api.md) | Endpoints, examples, error semantics |
 | [Deployment](docs/deployment.md) | Local, Docker, reverse proxy, configuration |
 | [Operations](docs/operations.md) | SLOs, monitoring, retraining, incident runbook |
+| [Generality](docs/generality.md) | Adapting the same engine to products, content, SaaS, or another catalogue |
 | [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, expected outputs, CI |
 | [Governance](docs/governance.md) | Change control, releases, data ethics |
 | [中文说明](README.zh-CN.md) | 中文快速开始与项目说明 |
@@ -178,7 +213,7 @@ If you use the benchmark, code, or report, please cite:
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.0.0},
+  version = {2.1.0},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

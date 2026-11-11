@@ -6,7 +6,58 @@ const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selec
 const state = {
   meta: null,
   mode: "recommend",
+  domain: {
+    user_label: "user",
+    user_label_plural: "users",
+    item_label: "item",
+    item_label_plural: "items",
+    interaction_label: "interaction",
+    catalog_label: "catalogue",
+    task_name: "next-period new-item adoption ranking",
+    train_period_label: "training period",
+    test_period_label: "test period",
+    tagline: "A reproducible pipeline for leakage-free temporal splits and auditable recommendations.",
+  },
 };
+
+function titleCase(value) {
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+}
+
+function setText(id, value) {
+  const node = document.getElementById(id);
+  if (node && value) node.textContent = value;
+}
+
+function applyDomain(meta) {
+  const domain = { ...state.domain, ...(meta.domain || {}) };
+  state.domain = domain;
+  const itemPlural = domain.item_label_plural;
+  const userPlural = domain.user_label_plural;
+  setText("hero-eyebrow", `${domain.task_name} · ${domain.train_period_label} → ${domain.test_period_label}`);
+  setText("hero-item", domain.item_label);
+  setText("hero-copy", domain.tagline);
+  setText("kpi-users-label", titleCase(userPlural));
+  setText("kpi-items-label", titleCase(domain.catalog_label));
+  setText("kpi-interactions-label", titleCase(domain.interaction_label) + "s");
+  setText("kpi-users-note", `${domain.train_period_label} cohort`);
+  const minSupport = meta.dataset?.stats?.catalog_item_support_min ?? 10;
+  setText("kpi-items-note", `${itemPlural} with ≥${minSupport} ${userPlural}`);
+  setText("kpi-interactions-note", `${domain.user_label}–${domain.item_label} pairs`);
+  setText("tab-similar-label", `Similar ${itemPlural}`);
+  setText("user-field-label", `${titleCase(domain.user_label)} ID`);
+  setText("user-hint", `Pick a sample ${domain.user_label} or paste any ID from ${domain.train_period_label}.`);
+  setText("item-field-label", `${titleCase(domain.item_label)} name`);
+  setText("similar-hint", `Similarity is cosine over ${domain.train_period_label} co-usage or the active model's item geometry.`);
+  setText("empty-copy", `Choose a ${domain.user_label} to see ranked ${itemPlural}, scores, and the ${domain.train_period_label} co-usage that supports each recommendation.`);
+  setText("meta-task", domain.task_name);
+  setText("meta-train", domain.train_period_label);
+  setText("meta-test", domain.test_period_label);
+  const input = document.getElementById("item-input");
+  if (input) input.placeholder = `Start typing ${domain.item_label === "item" ? "an" : "a"} ${domain.item_label}…`;
+  const outputTitle = document.getElementById("output-title");
+  if (outputTitle && outputTitle.dataset.empty !== "false") outputTitle.textContent = `Waiting for a ${domain.user_label}`;
+}
 
 function formatNumber(value) {
   if (value === null || value === undefined || Number.isNaN(Number(value))) return "—";
@@ -57,12 +108,15 @@ function renderProfile(profile) {
   container.replaceChildren();
   if (!profile) { container.hidden = true; return; }
   const title = document.createElement("h3");
-  title.textContent = `${profile.n_apps} apps in January`;
+  const domain = state.domain;
+  const count = profile.n_items ?? profile.n_apps ?? 0;
+  const topItems = profile.top_items ?? profile.top_apps ?? [];
+  title.textContent = `${count} ${domain.item_label_plural} in ${domain.train_period_label}`;
   const note = document.createElement("p");
-  note.textContent = "Most-engaged apps in the training window:";
+  note.textContent = `Most-engaged ${domain.item_label_plural} in the training window:`;
   const list = document.createElement("div");
   list.className = "profile-apps";
-  profile.top_apps.slice(0, 6).forEach((item) => {
+  topItems.slice(0, 6).forEach((item) => {
     const chip = document.createElement("span");
     chip.className = "profile-app";
     chip.textContent = item.item_id;
@@ -75,13 +129,15 @@ function renderProfile(profile) {
 function renderRecommendations(payload) {
   const output = $("#output");
   output.replaceChildren();
+  const domain = state.domain;
   $("#output-eyebrow").textContent = payload.strategy === "personalized" ? "Personalized ranking" : "Popularity fallback";
   $("#output-title").textContent = payload.strategy === "personalized"
-    ? "Predicted next apps"
+    ? `Predicted next ${domain.item_label_plural}`
     : "Cold-start recommendations";
+  $("#output-title").dataset.empty = "false";
   $("#latency").textContent = `${Number(payload.latency_ms).toFixed(1)} ms · ${payload.model}`;
   if (!payload.items.length) {
-    showEmpty("No unseen catalogue apps remain for this panelist.");
+    showEmpty(`No unseen ${state.domain.catalog_label} ${state.domain.item_label_plural} remain for this ${state.domain.user_label}.`);
     return;
   }
   const scores = payload.items.map((item) => Number(item.score));
@@ -99,7 +155,7 @@ function renderRecommendations(payload) {
     const reasons = $(".reasons", node);
     const items = item.explanations && item.explanations.length
       ? item.explanations.map((explanation) => explanation.reason)
-      : ["popular with the January cohort"];
+      : [`popular with the ${state.domain.train_period_label} cohort`];
     items.slice(0, 2).forEach((reason) => {
       const li = document.createElement("li");
       li.textContent = reason;
@@ -114,7 +170,8 @@ async function recommend(userId) {
   const button = $("#recommend-button");
   button.disabled = true;
   $("#output-eyebrow").textContent = "Scoring";
-  $("#output-title").textContent = "Ranking the catalogue…";
+  $("#output-title").textContent = `Ranking the ${state.domain.catalog_label}…`;
+  $("#output-title").dataset.empty = "false";
   try {
     const k = $("#k-select").value;
     const explain = $("#explain-toggle").checked;
@@ -127,7 +184,7 @@ async function recommend(userId) {
     renderRecommendations(payload);
     renderProfile(profile);
   } catch (error) {
-    $("#output-title").textContent = "Could not score this panelist";
+    $("#output-title").textContent = `Could not score this ${state.domain.user_label}`;
     showEmpty(error.message);
   } finally {
     button.disabled = false;
@@ -143,12 +200,12 @@ async function similar(itemId) {
   loading.textContent = "Finding neighbours…";
   output.append(loading);
   try {
-    const payload = await api(`/v1/apps/similar?${new URLSearchParams({ item_id: itemId, k: "10" })}`);
+    const payload = await api(`/v1/items/similar?${new URLSearchParams({ item_id: itemId, k: "10" })}`);
     output.replaceChildren();
     if (!payload.items.length) {
       const empty = document.createElement("p");
       empty.className = "muted";
-      empty.textContent = "No similar apps found in the January catalogue.";
+      empty.textContent = `No similar ${state.domain.item_label_plural} found in the ${state.domain.train_period_label} catalogue.`;
       output.append(empty);
       return;
     }
@@ -161,7 +218,7 @@ async function similar(itemId) {
       $(".score-fill", node).style.width = `${Math.max(4, Math.min(100, Number(item.score) * 100))}%`;
       $(".reasons", node).replaceChildren();
       const note = document.createElement("li");
-      note.textContent = "co-usage similarity in January";
+      note.textContent = `co-usage similarity in ${state.domain.train_period_label}`;
       $(".reasons", node).append(note);
       output.append(node);
     });
@@ -205,6 +262,7 @@ function renderMetricsTable(meta) {
 
 function applyMeta(meta) {
   state.meta = meta;
+  applyDomain(meta);
   const stats = meta.dataset.stats || {};
   $("#kpi-users").textContent = formatNumber(meta.dataset.n_users || stats.n_users);
   $("#kpi-items").textContent = formatNumber(meta.dataset.n_items || stats.n_items);
@@ -260,9 +318,10 @@ function wireTabs() {
       $("#mode-similar").hidden = mode !== "similar";
       if (mode === "similar") {
         $("#output-eyebrow").textContent = "Similarity search";
-        $("#output-title").textContent = "Apps with shared audiences";
+        $("#output-title").textContent = `${titleCase(state.domain.item_label_plural)} with shared audiences`;
+        $("#output-title").dataset.empty = "false";
         $("#latency").textContent = "";
-        showEmpty("Choose an app on the left to inspect its nearest neighbours.");
+        showEmpty(`Choose a ${state.domain.item_label} on the left to inspect its nearest neighbours.`);
       }
     });
   });

@@ -140,8 +140,8 @@ def run_experiment(
     output_dir: str | Path | None = None,
 ) -> RunOutput:
     dataset = dataset or build_dataset(config.data, verbose=True)
-    if save_dataset:
-        dataset.save("data/processed")
+    if save_dataset and config.processed_dir:
+        dataset.save(config.processed_dir)
     return fit_and_evaluate(
         dataset,
         config.model,
@@ -161,8 +161,8 @@ def run_benchmark(
     """Fit every configured model on one dataset and compare against popularity."""
 
     dataset = build_dataset(config.data, verbose=True)
-    if save_dataset:
-        dataset.save("data/processed")
+    if save_dataset and config.processed_dir:
+        dataset.save(config.processed_dir)
     base_dir = Path(output_dir or config.output_dir)
     outputs: list[RunOutput] = []
     for model_config in config.models:

@@ -26,7 +26,7 @@ flowchart TD
 | Boundary | Responsibility | Why it matters |
 | --- | --- | --- |
 | `data.schema` | validation, Unicode normalisation, row-level audit | Bad input fails before it reaches a model |
-| `data.preprocess` | temporal split, catalogue, CSR matrices, fingerprints | Leakage controls live in one auditable place |
+| `data.preprocess` | temporal split, catalogue, CSR matrices, fingerprints | Leakage controls live in one auditable place; domain labels are metadata only |
 | `models` | fit and score only; no access to February labels | Models cannot accidentally train on test data |
 | `evaluation` | masking, metrics, bootstrap, comparisons | One protocol for every model |
 | `artifacts` | pickle-free persistence, manifest, registry | Reproducible serving and rollback |

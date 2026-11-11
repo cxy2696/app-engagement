@@ -1,0 +1,25 @@
+# Domain-only example; merge this block into a full BenchmarkConfig.
+data:
+  train_path: data/your_shop/train.parquet
+  test_path: data/your_shop/test.parquet
+  user_col: customer_id
+  item_col: sku
+  weight_col: revenue
+  weight_unit: unknown
+  min_item_users: 20
+  min_user_items: 3
+  max_items: 50000
+  weight_transform: log1p
+  domain:
+    name: ecommerce
+    dataset_name: First-party commerce events
+    user_label: customer
+    user_label_plural: customers
+    item_label: product
+    item_label_plural: products
+    interaction_label: purchase
+    catalog_label: product catalogue
+    task_name: next-period product repurchase ranking
+    train_period_label: last quarter
+    test_period_label: current quarter
+    blocklist: []

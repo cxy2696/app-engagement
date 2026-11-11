@@ -30,7 +30,7 @@ install-graph:
 	$(PIP) install -e ".[graph]"
 
 data:
-	$(PYTHON) -m engagegraph data build --out data/processed
+	$(PYTHON) -m engagegraph data build --config configs/dataset.yaml --out data/processed
 
 benchmark:
 	$(PYTHON) -m engagegraph benchmark --config configs/benchmark.yaml
@@ -69,7 +69,7 @@ paper:
 	cd paper && latexmk -pdf -interaction=nonstopmode main.tex
 
 docker:
-	docker build -t engagegraph:2.0.0 .
+	docker build -t engagegraph:2.1.0 .
 
 lock:
 	$(PYTHON) -m pip freeze --exclude-editable > requirements-lock.txt

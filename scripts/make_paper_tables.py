@@ -40,7 +40,7 @@ def main() -> int:
             ",", "{,}"
         ),
         rf"\newcommand{{\EvalUsers}}{{{stats.get('eval_users', 0):,}}}".replace(",", "{,}"),
-        rf"\newcommand{{\ColdUsers}}{{{stats.get('cold_start_february_users', 0):,}}}".replace(
+        rf"\newcommand{{\ColdUsers}}{{{stats.get('cold_start_test_users', stats.get('cold_start_february_users', 0)):,}}}".replace(
             ",", "{,}"
         ),
         "",

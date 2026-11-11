@@ -1,6 +1,6 @@
 # EngageGraph
 
-**可复现、可运营的应用参与度分析与“下一款应用”推荐系统。**
+**可复现、可运营的时序参与度分析与“下一个物品”推荐系统，附带应用参与度参考基准。**
 
 [![CI](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml/badge.svg)](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/cxy2696/app-engagement)](https://github.com/cxy2696/app-engagement/releases)
@@ -54,6 +54,39 @@ engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 
 完整定义、公式和泄漏控制见 [`docs/methodology.md`](docs/methodology.md)。
 
+## 一个引擎，多个领域
+
+应用只是参考数据集，不是硬编码假设。模型、评估、artefact 与 API 都基于通用的
+用户 × 物品交互矩阵；`domain` 配置只负责领域词汇、文件布局与可选的 serving
+blocklist。
+
+```yaml
+data:
+  train_path: data/your_domain/train.parquet
+  test_path: data/your_domain/test.parquet
+  user_col: customer_id
+  item_col: sku
+  weight_col: revenue
+  domain:
+    name: ecommerce
+    user_label: customer
+    item_label: product
+    item_label_plural: products
+    task_name: next-period product adoption ranking
+    train_period_label: last quarter
+    test_period_label: current quarter
+    blocklist: []
+```
+
+`/v1/meta` 会返回领域标签，仪表盘自动切换文案；评估协议与运维方式不变。
+详见 [`docs/generality.md`](docs/generality.md) 与 [`profiles/`](profiles/)
+（应用、通用 CSV 零售示例、电商模板）。
+
+```bash
+engagegraph data build --config profiles/generic-interactions.yaml --out data/processed-generic
+engagegraph benchmark --config profiles/generic-interactions.yaml
+```
+
 ## 结果
 
 <!-- RESULTS_TABLE_START -->
@@ -64,7 +97,7 @@ engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 | `metapath2vec` | **0.1639** [0.1622, 0.1660] | 0.0933 | 0.0772 | 0.015 | 1.661 |
 | `als` | **0.0993** [0.0974, 0.1013] | 0.0798 | 0.0505 | 0.317 | 4.830 |
 
-Dataset fingerprint: `a84b20b180409390ea2b` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
+Dataset fingerprint: `2b8d9290d5614afa22f6` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
 
 **技术报告：** [EngageGraph（PDF）](paper/engagegraph-report.pdf) · **评估报告：** [reports/evaluation-report.md](reports/evaluation-report.md) · **旧结果审计：** [reports/legacy-audit.md](reports/legacy-audit.md)
@@ -101,6 +134,7 @@ Jan-Feb-parquet/     原始聚合数据（仅限研究复现）
 | [`docs/api.md`](docs/api.md) | API 端点与示例 |
 | [`docs/deployment.md`](docs/deployment.md) | 本地、Docker、反向代理 |
 | [`docs/operations.md`](docs/operations.md) | SLO、监控、重训练、事故手册 |
+| [`docs/generality.md`](docs/generality.md) | 适配电商、内容、SaaS 等其他领域 |
 | [`docs/reproducibility.md`](docs/reproducibility.md) | 种子、指纹、CI、已知不可复现因素 |
 | [`docs/governance.md`](docs/governance.md) | 变更控制、发布、数据伦理 |
 
@@ -117,7 +151,7 @@ Jan-Feb-parquet/     原始聚合数据（仅限研究复现）
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.0.0},
+  version = {2.1.0},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

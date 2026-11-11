@@ -17,10 +17,10 @@ Open <http://127.0.0.1:8000>. The dashboard calls the same API it documents; the
 ## 2. Docker
 
 ```bash
-docker build -t engagegraph:2.0.0 .
+docker build -t engagegraph:2.1.0 .
 docker run --rm -p 8000:8000 \
   -v "$PWD/artifacts:/app/artifacts:ro" \
-  engagegraph:2.0.0
+  engagegraph:2.1.0
 ```
 
 The image runs as a non-root user, exposes port 8000, and has a `HEALTHCHECK` against `/readyz`. Mount artefacts read-only; the service never writes to them.
@@ -44,6 +44,7 @@ docker compose up --build
 | --- | --- | --- |
 | `ENGAGEGRAPH_ARTIFACT` | registry / `artifacts/demo` | Path to the artefact directory |
 | `ENGAGEGRAPH_FEEDBACK_DIR` | `var/feedback` | Append-only feedback JSONL directory |
+| `ENGAGEGRAPH_BLOCKLIST` | unset | Comma-separated extra item names to suppress at serving time |
 | `ENGAGEGRAPH_API_KEY` | unset | If set, required in `X-API-Key` for `POST /v1/feedback` |
 | `ENGAGEGRAPH_CORS_ORIGINS` | unset | Comma-separated allowed origins |
 | `ENGAGEGRAPH_DEBUG` | unset | Re-raise CLI exceptions for debugging |

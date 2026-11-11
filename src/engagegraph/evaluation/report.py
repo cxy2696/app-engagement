@@ -200,6 +200,11 @@ def build_report(
     out_dir.mkdir(parents=True, exist_ok=True)
     primary_k = int(summary.get("primary_metric", "ndcg@10").split("@")[1])
     dataset = summary.get("dataset_stats", {})
+    domain = dataset.get("domain", {}) or {}
+    item_label = domain.get("item_label_plural", "items")
+    user_label = domain.get("user_label_plural", "users")
+    test_label = domain.get("test_period_label", "test period")
+    cold_users = dataset.get("cold_start_test_users", dataset.get("cold_start_february_users", 0))
     comparison = _comparison_table(summary)
     table = _table(results, primary_k)
     per_k = _per_k_table(results)
@@ -210,6 +215,7 @@ def build_report(
         f"Generated: {datetime.now(timezone.utc):%Y-%m-%d %H:%M UTC}  ",
         f"Dataset fingerprint: `{summary.get('dataset_fingerprint')}`  ",
         f"Package: `{summary.get('package_version')}`  ",
+        f"Domain: `{domain.get('name', 'generic')}`  ",
         f"Primary metric: **NDCG@{primary_k}**",
         "",
         "## Headline",
@@ -224,9 +230,9 @@ def build_report(
         "",
         comparison,
         "",
-        f"`n = {dataset.get('eval_users', 'n/a'):,}` evaluation users; "
-        f"`{dataset.get('cold_start_february_users', 'n/a'):,}` February cold-start users "
-        "are reported separately and are not in the personalised denominator."
+        f"`n = {dataset.get('eval_users', 0):,}` evaluation {user_label}; "
+        f"`{cold_users:,}` {test_label} cold-start {user_label} are reported separately "
+        "and are not in the personalised denominator."
         if isinstance(dataset.get("eval_users"), int)
         else "Cold-start counts are reported in the dataset manifest.",
         "",
@@ -236,15 +242,13 @@ def build_report(
         "",
         "## Dataset",
         "",
-        f"- Users x items: **{dataset.get('n_users', '—'):,} x {dataset.get('n_items', '—'):,}**"
-        if isinstance(dataset.get("n_users"), int)
-        else "- Users x items: see manifest",
+        f"- {user_label.title()} x {item_label}: **{dataset.get('n_users', 0):,} x {dataset.get('n_items', 0):,}**",
         f"- Train interactions: **{dataset.get('n_train_interactions', 0):,}**",
         f"- Test targets: **{dataset.get('n_test_interactions', 0):,}**",
         f"- Targets per evaluation user: mean **{dataset.get('mean_targets_per_eval_user', 0):.1f}**, "
         f"median **{dataset.get('median_targets_per_eval_user', 0):.0f}**",
-        f"- Catalogue coverage of February rows (warm users): "
-        f"**{dataset.get('catalog_coverage_of_february_rows', 0):.1%}**",
+        f"- Catalogue coverage of {test_label} rows (warm {user_label}): "
+        f"**{dataset.get('catalog_coverage_of_test_rows', dataset.get('catalog_coverage_of_february_rows', 0)):.1%}**",
         f"- Weight transform: `{dataset.get('weight_transform', '—')}`; "
         f"clip: `{dataset.get('weight_clip_value', 0):,.0f}`",
         "",
@@ -290,7 +294,8 @@ def build_report(
         "",
         "## Limitations",
         "",
-        "- One panel, one January → February transition; no claim of generalisation to other markets.",
+        f"- One panel, one {domain.get('train_period_label', 'train')} -> "
+        f"{test_label} transition; no claim of generalisation to other markets.",
         "- Binary relevance; graded engagement is out of scope for the primary metric.",
         "- Offline evaluation; no position bias or online A/B evidence.",
         "- The data licence is unresolved; see [`DATA_LICENSE.md`](../DATA_LICENSE.md).",
