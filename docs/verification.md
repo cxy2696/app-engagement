@@ -8,7 +8,7 @@ and [`reports/verification.json`](../reports/verification.json).
 ## 1. Commands
 
 ```bash
-make check    # lint, type check, 44 fast tests
+make check    # lint, type check, 45 fast tests
 make verify   # real-data determinism + domain-invariance report
 ```
 

@@ -2,6 +2,21 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] — 2026-11-12
+
+### Added
+
+- Formal ranking framework in `docs/algorithm.md`: fit → score → mask → rank/policy → evaluate, with domain configuration explicitly outside the model.
+- `min_percentile` on `/v1/users/{id}/recommendations` and batch scoring: keeps only candidates above an empirical quantile; the returned percentile is still computed against the full unseen set.
+- Shareable dashboard state (`user`, `k`, `explain`, `diversify`, `min_percentile`, `mode`, `item`), a copy-link button, a minimum-percentile slider, and a per-row `SIMILAR` action.
+- API tests for threshold filtering and deep-link interaction checks.
+- Documentation for the threshold policy, complexity, and query semantics.
+
+### Changed
+
+- Default result-card layout now exposes the percentile and a direct similar-item path.
+- `docs/showcase.md` reduced to screenshots, links, and the reference result.
+
 ## [2.2.1] — 2026-11-12
 
 ### Fixed

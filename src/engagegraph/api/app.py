@@ -44,6 +44,7 @@ class BatchRecommendationRequest(BaseModel):
     user_ids: list[str] = Field(min_length=1, max_length=100)
     k: int = Field(default=10, ge=1, le=100)
     explain: bool = True
+    min_percentile: float = Field(default=0.0, ge=0.0, lt=1.0)
 
 
 class _Counters:
@@ -225,8 +226,15 @@ def create_app(artifact_path: str | Path | None = None) -> FastAPI:
         k: int = Query(default=10, ge=1, le=100),
         explain: bool = True,
         diversify: bool = False,
+        min_percentile: float = Query(default=0.0, ge=0.0, lt=1.0),
     ) -> dict[str, Any]:
-        return service().recommend(user_id, k=k, explain=explain, diversify=diversify).as_dict()
+        return (
+            service()
+            .recommend(
+                user_id, k=k, explain=explain, diversify=diversify, min_percentile=min_percentile
+            )
+            .as_dict()
+        )
 
     @app.get("/v1/users/{user_id}", tags=["users"])
     async def profile(user_id: str) -> dict[str, Any]:
@@ -236,7 +244,12 @@ def create_app(artifact_path: str | Path | None = None) -> FastAPI:
     async def batch(request: BatchRecommendationRequest) -> dict[str, Any]:
         svc = service()
         responses = [
-            svc.recommend(user_id, k=request.k, explain=request.explain).as_dict()
+            svc.recommend(
+                user_id,
+                k=request.k,
+                explain=request.explain,
+                min_percentile=request.min_percentile,
+            ).as_dict()
             for user_id in request.user_ids
         ]
         return {"results": responses, "count": len(responses)}

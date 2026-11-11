@@ -1,6 +1,6 @@
 # Methodology
 
-This document specifies the task, estimators, evaluation protocol, and statistical analysis used by EngageGraph 2.2.1. It is written to be sufficient for an independent researcher to reproduce every reported number and to audit every design choice.
+This document specifies the task, estimators, evaluation protocol, and statistical analysis used by EngageGraph 2.3. It is written to be sufficient for an independent researcher to reproduce every reported number and to audit every design choice.
 
 ## 1. Problem statement
 

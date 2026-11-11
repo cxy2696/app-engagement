@@ -56,6 +56,7 @@ class RecommendationResponse:
     model: str
     items: list[Recommendation]
     latency_ms: float
+    min_percentile: float = 0.0
     generated_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(timespec="seconds")
     )
@@ -67,6 +68,7 @@ class RecommendationResponse:
             "model": self.model,
             "generated_at": self.generated_at,
             "latency_ms": round(self.latency_ms, 3),
+            "min_percentile": self.min_percentile,
             "items": [item.as_dict() for item in self.items],
         }
 
@@ -197,10 +199,13 @@ class RecommendationService:
         explain: bool = True,
         diversify: bool = False,
         diversity_weight: float = 0.2,
+        min_percentile: float = 0.0,
     ) -> RecommendationResponse:
         started = time.perf_counter()
         if not 1 <= k <= 100:
             raise ValueError("k must be between 1 and 100")
+        if not 0.0 <= min_percentile < 1.0:
+            raise ValueError("min_percentile must be in [0, 1)")
         if user_id not in self.user_index:
             items = self._popular_items(k)
             return RecommendationResponse(
@@ -209,6 +214,7 @@ class RecommendationService:
                 model=self.model.name,
                 items=items,
                 latency_ms=(time.perf_counter() - started) * 1000,
+                min_percentile=min_percentile,
             )
 
         user_idx = self.user_index[user_id]
@@ -231,15 +237,29 @@ class RecommendationService:
                 model=self.model.name,
                 items=items,
                 latency_ms=(time.perf_counter() - started) * 1000,
+                min_percentile=min_percentile,
             )
-        candidates = np.flatnonzero(finite)
+        all_candidates = np.flatnonzero(finite)
+        candidates = all_candidates
+        if min_percentile > 0.0:
+            threshold = np.quantile(scores[all_candidates], min_percentile)
+            candidates = all_candidates[scores[all_candidates] >= threshold]
+            if candidates.size == 0:
+                return RecommendationResponse(
+                    user_id=user_id,
+                    strategy="threshold_filtered",
+                    model=self.model.name,
+                    items=[],
+                    latency_ms=(time.perf_counter() - started) * 1000,
+                    min_percentile=min_percentile,
+                )
         if diversify:
             selected = self._mmr(scores, candidates, k, diversity_weight)
         else:
             top = candidates[np.argsort(-scores[candidates])[:k]]
             selected = [int(i) for i in top]
         percentiles = within_user_percentile(
-            scores, candidates, np.asarray(selected, dtype=np.int64)
+            scores, all_candidates, np.asarray(selected, dtype=np.int64)
         )
 
         items = []
@@ -262,6 +282,7 @@ class RecommendationService:
             model=self.model.name,
             items=items,
             latency_ms=(time.perf_counter() - started) * 1000,
+            min_percentile=min_percentile,
         )
 
     def _safe_explain(self, user_idx: int, item_idx: int) -> list[Explanation]:

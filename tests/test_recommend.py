@@ -24,6 +24,13 @@ def test_personalized_recommendations_exclude_seen(service, tiny_dataset):
     assert all(0.0 < item.percentile <= 1.0 for item in response.items)
 
 
+def test_percentile_threshold_filters_slate(service, tiny_dataset):
+    response = service.recommend(tiny_dataset.user_ids[0], k=10, min_percentile=0.95)
+    assert response.min_percentile == 0.95
+    assert response.items
+    assert all(item.percentile >= 0.95 for item in response.items)
+
+
 def test_cold_start_falls_back_to_popularity(service):
     response = service.recommend("not-a-panelist", k=4)
     assert response.strategy == "cold_start_popularity"

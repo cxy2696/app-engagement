@@ -21,7 +21,7 @@ dashboard adapts automatically.
 Liveness and model status. Always 200 if the process is alive.
 
 ```json
-{"status": "ok", "model_loaded": true, "version": "2.2.1", "error": null}
+{"status": "ok", "model_loaded": true, "version": "2.3.0", "error": null}
 ```
 
 ### `GET /readyz`
@@ -31,7 +31,7 @@ Readiness. 200 when an artefact is loaded, 503 otherwise.
 ### `GET /version`
 
 ```json
-{"name": "engagegraph", "version": "2.2.1"}
+{"name": "engagegraph", "version": "2.3.0"}
 ```
 
 ### `GET /v1/meta`
@@ -45,7 +45,7 @@ Model, dataset, and artefact provenance. The dashboard uses this on load.
   "labels": {"user": "panelist", "item": "app", "train_period": "January 2024"},
   "dataset": {"fingerprint": "822b17a4209c607144d1", "n_users": 34024, "n_items": 9848, "stats": {...}},
   "metrics": {"ndcg@10": 0.2685, "recall@10": 0.1522, ...},
-  "artifact": {"created_at": "...", "package_version": "2.2.1", "fingerprint": "..."},
+  "artifact": {"created_at": "...", "package_version": "2.3.0", "fingerprint": "..."},
   "sample_users": ["...", "..."]
 }
 ```
@@ -67,7 +67,11 @@ Returns 404 for an unknown item.
 {"item_id": "Spotify", "items": [{"item_id": "YouTube Music", "score": 0.42, "rank": 1}]}
 ```
 
-### `GET /v1/users/{user_id}/recommendations?k=10&explain=true&diversify=false`
+### `GET /v1/users/{user_id}/recommendations?k=10&explain=true&diversify=false&min_percentile=0`
+
+`min_percentile` keeps only candidates at or above the requested within-user
+percentile (for example `0.95` for the top 5%). The percentile in each returned
+item is still computed against the full unseen candidate set.
 
 Personalised ranking, with January items masked. Unknown users receive a popularity fallback with a different `strategy`.
 
@@ -78,6 +82,7 @@ Personalised ranking, with January items masked. Unknown users receive a popular
   "model": "itemknn",
   "generated_at": "2026-11-11T12:00:00+00:00",
   "latency_ms": 3.2,
+  "min_percentile": 0.0,
   "items": [
     {
       "item_id": "Discord",
@@ -117,7 +122,7 @@ compatibility.
 Batch scoring for up to 100 users.
 
 ```json
-{"user_ids": ["1000123", "1000456"], "k": 5, "explain": true}
+{"user_ids": ["1000123", "1000456"], "k": 5, "explain": true, "min_percentile": 0.0}
 ```
 
 Response: `{"results": [...], "count": 2}`. Invalid users fall back per item; the batch does not fail as a whole.

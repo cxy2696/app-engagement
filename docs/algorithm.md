@@ -1,9 +1,34 @@
 # Algorithm notes
 
-This note states the ranking rule, the confidence signal, and the decision
-policy used by the serving layer. It is deliberately explicit about what is
-*not* being claimed: raw scores are not probabilities, and co-usage reasons are
-not causal effects.
+This note states the ranking framework, the confidence signal, and the decision
+policy used by the serving layer. It is explicit about what is *not* being
+claimed: raw scores are not probabilities, and co-usage reasons are not causal
+effects.
+
+## Framework at a glance
+
+For a training matrix \(X\) and a user \(u\) with history
+\(H_u = \{i : X_{u,i} > 0\}\), every model in this repository implements
+
+\[
+f_\theta : U \times I \to \mathbb{R}, \qquad
+s_{u,i} = f_\theta(u,i),
+\]
+
+and the candidate set is \(C_u = I \setminus H_u\). The framework is the
+composition of five independent stages:
+
+1. **Fit** \(\theta\) on the training period only.
+2. **Score** the full catalogue (or an explicit candidate subset).
+3. **Mask** \(H_u\); this is performed by the evaluator and the service, not
+   by the model.
+4. **Rank** by \(s_{u,i}\), optionally apply a percentile threshold and/or an
+   MMR diversity rule.
+5. **Evaluate** against the next-period adoption labels.
+
+Domain configuration supplies vocabulary and an optional serving blocklist. It
+does not change \(X\), \(C_u\), \(f_\theta\), or any metric. This separation
+is tested in `tests/test_math_verification.py`.
 
 ## 1. Item-kNN scoring
 
@@ -52,17 +77,23 @@ The API reports this as `percentile`; the dashboard renders `TOP x%` as
 
 ## 3. Decision policy
 
-A product can act on a recommendation when
+The API exposes this as `min_percentile = q`. For a requested user, let
+\(Q_q\) be the empirical \(q\)-quantile of \(\{s_{u,i}: i \in C_u\}\) and
 
 \[
-q_{u,i} \ge \tau \quad \text{and} \quad i \notin H_u,
+C_u(q) = \{ i \in C_u : s_{u,i} \ge Q_q \}.
 \]
 
-and the slate is the top-\(k\) by \(s_{u,i}\) subject to that threshold. The
-default service uses \(k\) from the request and \(\tau=0\) (no abstention); an
-operator can set a stricter threshold without retraining. Because \(q\) is a
-rank transform, the threshold has a direct interpretation: \(\tau=0.99\) means
-"only the top 1% of candidates for this user".
+The slate is the top-\(k\) by \(s_{u,i}\) within \(C_u(q)\). If \(C_u(q)\) is
+empty the service returns no items with strategy `threshold_filtered`; it does
+not silently substitute an unrelated popularity list. The percentile shown on a
+returned item is computed against the **original** unseen set \(C_u\), not the
+filtered set, so the number remains comparable across thresholds.
+
+The default is \(q=0\) (no abstention). Because \(q\) is a rank transform, the
+threshold has a direct interpretation: \(q=0.99\) means "only the top 1% of
+this user's unseen candidates". Increasing \(q\) can only shrink the slate; it
+does not change the relative order of items that remain.
 
 For exploratory surfaces, use `diversify=true`. The MMR objective is
 

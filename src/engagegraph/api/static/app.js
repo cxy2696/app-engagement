@@ -116,6 +116,67 @@ function setMiniGauge(id, value) {
   node.style.setProperty("--v", `${(numeric * 360).toFixed(1)}deg`);
 }
 
+function toast(message) {
+  const node = $("#toast");
+  if (!node) return;
+  node.textContent = message;
+  node.classList.add("is-visible");
+  window.clearTimeout(toast.timer);
+  toast.timer = window.setTimeout(() => node.classList.remove("is-visible"), 1800);
+}
+
+function currentMinPercentile() {
+  return Number($("#percentile-range")?.value || 0);
+}
+
+function updatePercentileLabel() {
+  setText("percentile-value", `${Math.round(currentMinPercentile() * 100)}%`);
+}
+
+function syncURL() {
+  const params = new URLSearchParams();
+  if (state.mode === "similar") {
+    params.set("mode", "similar");
+    const item = $("#item-input").value.trim();
+    if (item) params.set("item", item);
+  } else {
+    const user = $("#user-input").value.trim();
+    if (user) params.set("user", user);
+    params.set("k", $("#k-select").value);
+    params.set("explain", String($("#explain-toggle").checked));
+    params.set("diversify", String($("#diversify-toggle").checked));
+    const threshold = currentMinPercentile();
+    if (threshold > 0) params.set("min_percentile", threshold.toFixed(2));
+  }
+  history.replaceState(null, "", `${location.pathname}?${params.toString()}`);
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  $$(".tab").forEach((tab) => {
+    const active = tab.dataset.mode === mode;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+  $("#mode-recommend").hidden = mode !== "recommend";
+  $("#mode-similar").hidden = mode !== "similar";
+  if (mode === "similar") {
+    $("#output-eyebrow").textContent = "Similarity search";
+    $("#output-title").textContent = `${titleCase(state.domain.item_label_plural)} with shared audiences`;
+    $("#output-title").dataset.empty = "false";
+    $("#latency").textContent = "";
+    showEmpty(`Choose a ${state.domain.item_label} on the left to inspect its nearest neighbours.`);
+  }
+}
+
+function goSimilar(itemId) {
+  if (!itemId) return;
+  $("#item-input").value = itemId;
+  setMode("similar");
+  similar(itemId);
+  syncURL();
+}
+
 function showEmpty(message) {
   const output = $("#output");
   output.replaceChildren();
@@ -154,10 +215,14 @@ function renderRecommendations(payload) {
   const output = $("#output");
   output.replaceChildren();
   const domain = state.domain;
-  $("#output-eyebrow").textContent = payload.strategy === "personalized" ? "Personalized ranking" : "Popularity fallback";
-  $("#output-title").textContent = payload.strategy === "personalized"
+  const personalized = payload.strategy === "personalized";
+  const filtered = payload.strategy === "threshold_filtered";
+  $("#output-eyebrow").textContent = personalized
+    ? "Personalized ranking"
+    : filtered ? "Threshold filter" : "Popularity fallback";
+  $("#output-title").textContent = personalized
     ? `Predicted next ${domain.item_label_plural}`
-    : "Cold-start recommendations";
+    : filtered ? "No items above the confidence threshold" : "Cold-start recommendations";
   $("#output-title").dataset.empty = "false";
   $("#latency").textContent = `${Number(payload.latency_ms).toFixed(1)} ms · ${payload.model}`;
   if (!payload.items.length) {
@@ -191,6 +256,8 @@ function renderRecommendations(payload) {
       li.textContent = reason;
       reasons.append(li);
     });
+    const action = $(".row-action", node);
+    if (action) action.addEventListener("click", () => goSimilar(item.item_id));
     output.append(node);
   });
 }
@@ -206,13 +273,19 @@ async function recommend(userId) {
     const k = $("#k-select").value;
     const explain = $("#explain-toggle").checked;
     const diversify = $("#diversify-toggle").checked;
-    const query = new URLSearchParams({ k, explain: String(explain), diversify: String(diversify) });
+    const query = new URLSearchParams({
+      k,
+      explain: String(explain),
+      diversify: String(diversify),
+      min_percentile: currentMinPercentile().toFixed(2),
+    });
     const [payload, profile] = await Promise.all([
       api(`/v1/users/${encodeURIComponent(userId)}/recommendations?${query}`),
       api(`/v1/users/${encodeURIComponent(userId)}`).catch(() => null),
     ]);
     renderRecommendations(payload);
     renderProfile(profile);
+    syncURL();
   } catch (error) {
     $("#output-title").textContent = `Could not score this ${state.domain.user_label}`;
     showEmpty(error.message);
@@ -250,8 +323,11 @@ async function similar(itemId) {
       const note = document.createElement("li");
       note.textContent = `co-usage similarity in ${state.domain.train_period_label}`;
       $(".reasons", node).append(note);
+      const action = $(".row-action", node);
+      if (action) action.hidden = true;
       output.append(node);
     });
+    syncURL();
   } catch (error) {
     output.replaceChildren();
     const message = document.createElement("p");
@@ -311,28 +387,17 @@ async function loadPopularApps() {
       option.value = item.item_id;
       list.append(option);
     });
-    if (payload.items.length) $("#item-input").value = payload.items[0].item_id;
+    if (payload.items.length && !$("#item-input").value) {
+      $("#item-input").value = payload.items[0].item_id;
+    }
   } catch (_) { /* non-critical */ }
 }
 
 function wireTabs() {
   $$(".tab").forEach((tab) => {
     tab.addEventListener("click", () => {
-      const mode = tab.dataset.mode;
-      state.mode = mode;
-      $$(".tab").forEach((other) => {
-        other.classList.toggle("is-active", other === tab);
-        other.setAttribute("aria-selected", String(other === tab));
-      });
-      $("#mode-recommend").hidden = mode !== "recommend";
-      $("#mode-similar").hidden = mode !== "similar";
-      if (mode === "similar") {
-        $("#output-eyebrow").textContent = "Similarity search";
-        $("#output-title").textContent = `${titleCase(state.domain.item_label_plural)} with shared audiences`;
-        $("#output-title").dataset.empty = "false";
-        $("#latency").textContent = "";
-        showEmpty(`Choose a ${state.domain.item_label} on the left to inspect its nearest neighbours.`);
-      }
+      setMode(tab.dataset.mode);
+      syncURL();
     });
   });
 }
@@ -351,13 +416,45 @@ async function init() {
     const userId = $("#user-input").value.trim();
     if (userId) recommend(userId);
   });
+  $("#percentile-range").addEventListener("input", updatePercentileLabel);
+  $("#percentile-range").addEventListener("change", () => {
+    const userId = $("#user-input").value.trim();
+    if (userId) recommend(userId);
+  });
+  $("#copy-link").addEventListener("click", async () => {
+    syncURL();
+    try {
+      await navigator.clipboard.writeText(location.href);
+      toast("LINK COPIED");
+    } catch (_) {
+      toast("COPY NOT AVAILABLE");
+    }
+  });
   try {
     const [meta, version] = await Promise.all([api("/v1/meta"), api("/version")]);
     applyMeta(meta);
     setText("footer-version", `v${version.version}`);
     setStatus(true, "READY");
     loadPopularApps();
-    recommend($("#user-input").value.trim());
+    const params = new URLSearchParams(location.search);
+    const k = params.get("k");
+    if (k) $("#k-select").value = k;
+    if (params.get("explain") === "false") $("#explain-toggle").checked = false;
+    if (params.get("diversify") === "true") $("#diversify-toggle").checked = true;
+    const threshold = Number(params.get("min_percentile") || 0);
+    if (Number.isFinite(threshold) && threshold > 0 && threshold < 1) {
+      $("#percentile-range").value = threshold.toFixed(2);
+    }
+    updatePercentileLabel();
+    const requestedUser = params.get("user");
+    if (requestedUser) $("#user-input").value = requestedUser;
+    if (params.get("mode") === "similar" && params.get("item")) {
+      $("#item-input").value = params.get("item");
+      setMode("similar");
+      similar(params.get("item"));
+    } else {
+      recommend($("#user-input").value.trim());
+    }
   } catch (error) {
     setStatus(false, "NO MODEL");
     showEmpty(`The API is running but no artefact is loaded. ${error.message}`);

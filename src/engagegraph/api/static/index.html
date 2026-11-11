@@ -91,6 +91,10 @@
               <span class="switch-track" aria-hidden="true"></span>
               <span>DIVERSIFY</span>
             </label>
+            <label class="control control-percentile">MIN
+              <input id="percentile-range" type="range" min="0" max="0.99" step="0.01" value="0" />
+              <output id="percentile-value">0%</output>
+            </label>
           </div>
 
           <div id="profile" class="profile" hidden></div>
@@ -158,6 +162,7 @@
           </div>
           <div class="output-meta">
             <span id="latency" class="mono"></span>
+            <button id="copy-link" class="mini-button" type="button">COPY LINK</button>
             <span class="panel-code">02</span>
           </div>
         </div>
@@ -204,10 +209,12 @@
       <div class="result-main">
         <div class="result-title-row"><h3 class="app-name"></h3><span class="result-metrics"><span class="percentile mono"></span><span class="score mono"></span></span></div>
         <div class="score-track"><span class="score-fill"></span></div>
-        <ul class="reasons"></ul>
+        <div class="result-bottom"><ul class="reasons"></ul><button class="row-action" type="button">SIMILAR</button></div>
       </div>
     </article>
   </template>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="/static/app.js" defer></script>
 </body>

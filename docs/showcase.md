@@ -45,4 +45,4 @@ make serve
 # open http://127.0.0.1:8000
 ```
 
-The screenshots are produced by `scripts/screenshot.py` against the running API. The app screen uses `artifacts/demo`; the retail screen uses the generic profile artefact.
+The dashboard supports shareable state (`?user=...&k=10&min_percentile=0.9`), a copy-link button, a minimum-percentile slider, and a `SIMILAR` action on each row that switches to item-neighbour search. The screenshots are produced by `scripts/screenshot.py` against the running API. The app screen uses `artifacts/demo`; the retail screen uses the generic profile artefact.

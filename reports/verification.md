@@ -1,7 +1,7 @@
 # Reproducibility verification
 
-Generated: 2026-11-11T17:57:25.772072+00:00  
-Package: `2.2.1`  
+Generated: 2026-11-11T21:32:54.800018+00:00  
+Package: `2.3.0`  
 Python: `3.12.3`  
 Dataset fingerprint: `dca196daee55783bae1c`  
 Status: **PASS**

@@ -1,5 +1,5 @@
 {
-  "artifact": "artifacts/runs/itemknn-20261111T175515Z/artifact",
+  "artifact": "artifacts/runs/itemknn-20261111T213005Z/artifact",
   "dataset_fingerprint": "dca196daee55783bae1c",
   "model": "itemknn",
   "n_users_sampled": 5000,

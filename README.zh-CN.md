@@ -31,7 +31,7 @@ engagegraph benchmark --config configs/benchmark.yaml
 engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 ```
 
-仪表盘 <http://127.0.0.1:8000>，OpenAPI `/docs`，Prometheus 指标 `/metrics`。
+仪表盘 <http://127.0.0.1:8000>，OpenAPI `/docs`，Prometheus 指标 `/metrics`。仪表盘状态可通过 `?user=...&k=10&min_percentile=0.9` 分享，每行可跳转相似物品。
 
 快捷方式：
 
@@ -126,7 +126,7 @@ Jan-Feb-parquet/   原始聚合导出（仅研究复现）
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.2.1},
+  version = {2.3.0},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

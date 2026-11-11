@@ -36,6 +36,13 @@ def test_recommendations_and_similar(client, tiny_dataset):
     assert payload["strategy"] == "personalized"
     assert 0.0 < payload["items"][0]["percentile"] <= 1.0
 
+    filtered = client.get(
+        f"/v1/users/{user}/recommendations", params={"k": 10, "min_percentile": 0.95}
+    )
+    assert filtered.status_code == 200
+    assert filtered.json()["min_percentile"] == 0.95
+    assert all(item["percentile"] >= 0.95 for item in filtered.json()["items"])
+
     similar = client.get("/v1/apps/similar", params={"item_id": tiny_dataset.item_ids[0]})
     assert similar.status_code == 200
     assert similar.json()["items"]

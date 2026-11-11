@@ -31,7 +31,7 @@ engagegraph benchmark --config configs/benchmark.yaml
 engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 ```
 
-Dashboard: <http://127.0.0.1:8000> · OpenAPI: `/docs` · Prometheus text: `/metrics`.
+Dashboard: <http://127.0.0.1:8000> · OpenAPI: `/docs` · Prometheus text: `/metrics`. Dashboard state is shareable (`?user=...&k=10&min_percentile=0.9`), and each row can open similar items.
 
 The shortcut is:
 
@@ -132,7 +132,7 @@ Code is Apache-2.0. The panel exports in `Jan-Feb-parquet/` are **not** covered 
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.2.1},
+  version = {2.3.0},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```
