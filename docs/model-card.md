@@ -22,7 +22,7 @@ All models are trained on the same January matrix and evaluated on the same Febr
 | ALS | 64 factors, λ = 0.05, 15 iterations, α = 40, seed 42 |
 | MetaPath2Vec | dim 64, walk 20, context 5, 5 walks/node, 5 negatives, 3 epochs, lr 0.01, seed 42 |
 
-No February metric was used to select these values. See [`methodology.md`](methodology.md) §3.5.
+The primary values were fixed before February. MetaPath2Vec's read-out and epoch count were revised after a February diagnostic; see [`methodology.md`](methodology.md) §3.5 for the disclosure.
 
 ## 2. Intended use
 
@@ -39,7 +39,7 @@ January 2024 aggregated panel exports: 34,024 eligible panelists, 9,848 catalogu
 ## 4. Evaluation
 
 - **Task:** full-catalogue next-month new-app adoption ranking.
-- **Protocol:** January fit, February labels; all January apps masked; catalogue fixed from January; no test-set tuning.
+- **Protocol:** January fit, February labels; all January apps masked; catalogue fixed from January. Primary configs were fixed before evaluation; post-hoc MetaPath2Vec/item-kNN diagnostics are disclosed in [`methodology.md`](methodology.md) §3.5.
 - **Primary metric:** NDCG@10, macro-averaged over 28,286 users.
 - **Secondary:** Recall@10/20/50, MAP, HitRate, MRR, coverage, Gini, novelty.
 - **Uncertainty:** paired user-level bootstrap (1,000 resamples), 95% intervals; Holm–Bonferroni across comparisons against popularity.

@@ -106,7 +106,14 @@ This is the canonical objective. The original notebook's read-out applied an ele
 
 ### 3.5 Hyperparameter policy
 
-Hyperparameters were fixed **before** the February evaluation from literature defaults and small-scale pilot runs on January only. No February metric was used to select a model, threshold, or hyperparameter. The sensitivity analysis varies one design choice at a time and is reported as exploratory evidence, not as model selection.
+The primary configurations — popularity, item-kNN with `k=100`, and ALS — were fixed before the February evaluation from literature defaults and January-only reasoning. No February metric was used to select the headline model or the primary k.
+
+Two exploratory adjustments were made after inspecting February diagnostics, and are disclosed rather than presented as pre-registered:
+
+1. **MetaPath2Vec read-out.** The canonical user-vector dot product produced near-random top-10 rankings. We replaced it with a profile read-out (engagement-weighted mean of the user's January item embeddings) and increased the epoch count. The reported MetaPath2Vec result is therefore **exploratory**, not a pre-registered comparison. It is included because omitting the model that motivated the original repository would be misleading.
+2. **Item-kNN sweep.** We evaluated `k ∈ {50, 100, 200, 300}`, a non-binary variant, and a popularity blend on February as a sensitivity check. The pre-specified `k=100` was retained because it was the best or statistically indistinguishable from the best. The sweep did not change the primary configuration.
+
+The item-kNN vs. popularity comparison, which is the paper's main positive result, does not depend on either adjustment. Readers who require a strictly pre-registered comparison should treat the MetaPath2Vec row as descriptive.
 
 ## 4. Evaluation
 
@@ -152,7 +159,7 @@ A balanced link-prediction AUC is not the primary metric. It answers a different
 | Future users | Mappings fitted on January; February-only users are cold-start, not imputed silently |
 | Seen-item leakage | All January items masked at scoring time |
 | Target leakage | Test labels never passed to `fit`; evaluator reads only `Y` |
-| Hyperparameter leakage | Fixed before February; no test-set tuning |
+| Hyperparameter leakage | Primary configs fixed before February; post-hoc MetaPath2Vec/item-kNN diagnostics disclosed in §3.5 |
 | Duplicate leakage | `(user, item)` pairs aggregated; train/test disjointness asserted |
 | Weight leakage | February weights used only for binary relevance, never for model fitting |
 

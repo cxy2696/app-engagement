@@ -89,7 +89,7 @@ The interval is a paired user-level bootstrap over 1,000 resamples. `p_holm` is 
 - **Cold start:** 10,875 February users have no January history. They are not in the personalised ranking denominator. `engagegraph data stats` reports the count; the API returns `strategy="cold_start_popularity"` for them.
 - **Weight transform:** rerun with `--weight-transform binary` and a different `--out`/config to test sensitivity. The primary benchmark uses `log1p`.
 - **Support threshold:** `--min-item-users 5` or `20` changes the catalogue; rerun the benchmark and report the change rather than mixing catalogues.
-- **Model hyperparameters:** fixed before February; the benchmark does not tune on test. Exploratory sweeps are labelled as such in `reports/`.
+- **Model hyperparameters:** primary configs fixed before February. Post-hoc MetaPath2Vec and item-kNN diagnostics are disclosed in [`methodology.md`](methodology.md) §3.5; exploratory sweeps are labelled, not used to select the headline model.
 
 ## 6. Generate the report
 

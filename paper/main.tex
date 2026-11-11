@@ -57,7 +57,7 @@ The catalogue is fixed from January: apps used by at least ten distinct panelist
 
 For user $u$ with January history $H_u$ and February adoption set $R_u \subseteq I_{\mathrm{Jan}} \setminus H_u$, every model produces a ranking of $I_{\mathrm{Jan}} \setminus H_u$. The evaluator masks $H_u$ centrally, so all models see the same candidate set. The primary metric is NDCG@10, macro-averaged over users; we also report Recall@10, MAP@10, HitRate@10, coverage@10, Gini@10, and novelty@10.
 
-Uncertainty is estimated by a paired user-level bootstrap with 1{,}000 resamples. We report the 95\% percentile interval for the mean difference against popularity and apply Holm--Bonferroni correction across the family of comparisons. Hyperparameters were fixed before the February evaluation; no test metric was used for model selection. The full protocol, including leakage controls, is in the repository's methodology document.
+Uncertainty is estimated by a paired user-level bootstrap with 1{,}000 resamples. We report the 95\% percentile interval for the mean difference against popularity and apply Holm--Bonferroni correction across the family of comparisons. The primary configurations (popularity, item-kNN $k=100$, ALS) were fixed before the February evaluation. Two post-hoc diagnostics are disclosed in the repository: the MetaPath2Vec read-out was revised after its canonical dot product produced near-random top-10 rankings, and an item-kNN sweep was run as a sensitivity check while retaining the pre-specified $k=100$. The MetaPath2Vec row is exploratory; the item-kNN vs. popularity result does not depend on either adjustment. The full protocol, including leakage controls, is in the repository's methodology document.
 
 \section{Models}
 
