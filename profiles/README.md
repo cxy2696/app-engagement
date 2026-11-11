@@ -5,7 +5,7 @@ file layout, and optional serving blocklist for a domain.
 
 | Profile | Domain | Notes |
 | --- | --- | --- |
-| [`app-engagement.yaml`](app-engagement.yaml) | mobile apps | Reference benchmark; blocklists OS components. |
+| [`../configs/benchmark.yaml`](../configs/benchmark.yaml) | mobile apps | Canonical reference benchmark; blocklists OS components. |
 | [`generic-interactions.yaml`](generic-interactions.yaml) | synthetic retail | CSV + event counts; no app assumptions. |
 | [`ecommerce.example.yaml`](ecommerce.example.yaml) | e-commerce | Template; merge into a full config. |
 

@@ -34,6 +34,7 @@ def test_recommendations_and_similar(client, tiny_dataset):
     payload = response.json()
     assert len(payload["items"]) == 3
     assert payload["strategy"] == "personalized"
+    assert 0.0 < payload["items"][0]["percentile"] <= 1.0
 
     similar = client.get("/v1/apps/similar", params={"item_id": tiny_dataset.item_ids[0]})
     assert similar.status_code == 200

@@ -8,6 +8,8 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
+**[展示页](docs/showcase.md)** · **[技术报告](paper/engagegraph-report.pdf)** · **[评估报告](reports/evaluation-report.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
+
 EngageGraph 是原 `app-engagement` 研究 notebook 的工程化升级版：把 2024 年 1–2 月的面板应用使用数据，变成**无泄漏的时序基准、可解释的基线模型、可部署的推荐 API 与仪表盘**。
 
 > **重要更正。** 原 notebook 报告的 ROC-AUC 0.9257 来自 2 月的直推式（transductive）设置、按相似度挑选的负样本，以及一个实现有误的 cosine 读出；它不能作为推荐质量指标。EngageGraph 用“1 月训练、2 月只做标签”的全目录排序协议替代它，并公开审计旧结果为何不可比。详见 [`reports/legacy-audit.md`](reports/legacy-audit.md)。
@@ -127,6 +129,7 @@ Jan-Feb-parquet/     原始聚合数据（仅限研究复现）
 | 文档 | 内容 |
 | --- | --- |
 | [`docs/methodology.md`](docs/methodology.md) | 任务定义、模型、评估、统计、泄漏控制 |
+| [`docs/algorithm.md`](docs/algorithm.md) | 打分、百分位、决策策略、复杂度 |
 | [`docs/evaluation.md`](docs/evaluation.md) | 复现命令与指标解释 |
 | [`docs/data-card.md`](docs/data-card.md) | 数据来源、字段、质量、隐私、许可 |
 | [`docs/model-card.md`](docs/model-card.md) | 适用范围、指标、局限、伦理 |
@@ -134,6 +137,7 @@ Jan-Feb-parquet/     原始聚合数据（仅限研究复现）
 | [`docs/api.md`](docs/api.md) | API 端点与示例 |
 | [`docs/deployment.md`](docs/deployment.md) | 本地、Docker、反向代理 |
 | [`docs/operations.md`](docs/operations.md) | SLO、监控、重训练、事故手册 |
+| [`docs/showcase.md`](docs/showcase.md) | 截图、链接与参考结果 |
 | [`docs/generality.md`](docs/generality.md) | 适配电商、内容、SaaS 等其他领域 |
 | [`docs/reproducibility.md`](docs/reproducibility.md) | 种子、指纹、CI、已知不可复现因素 |
 | [`docs/governance.md`](docs/governance.md) | 变更控制、发布、数据伦理 |
@@ -151,7 +155,7 @@ Jan-Feb-parquet/     原始聚合数据（仅限研究复现）
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.1.0},
+  version = {2.2.0},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

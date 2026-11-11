@@ -8,6 +8,8 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
+**[Showcase](docs/showcase.md)** · **[Technical report](paper/engagegraph-report.pdf)** · **[Evaluation report](reports/evaluation-report.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
+
 EngageGraph turns panel-scale app-usage exports into a **leakage-free temporal benchmark**, a set of **honest baselines**, and a **servable recommendation API** with a human-readable dashboard. It is the maintained successor to the original `app-engagement` research notebook.
 
 > **What changed.** The original notebook reported ROC-AUC 0.9257 from a transductive February setup with similarity-selected negatives, a broken cosine read-out, and no temporal ranking evaluation. EngageGraph replaces that with a January → February ranking protocol, full-catalogue seen-item masking, paired bootstrap confidence intervals, and an explicit audit of why the old number is not comparable. See [`reports/legacy-audit.md`](reports/legacy-audit.md).
@@ -186,6 +188,7 @@ Jan-Feb-parquet/          # original aggregated exports (research use only)
 | Document | What it covers |
 | --- | --- |
 | [Methodology](docs/methodology.md) | Formal task, estimators, leakage controls, statistical analysis |
+| [Algorithm notes](docs/algorithm.md) | Scoring, percentiles, decision policy, complexity |
 | [Evaluation](docs/evaluation.md) | Exact protocol, commands, metric definitions |
 | [Data card](docs/data-card.md) | Provenance, schema, quality issues, intended use, ethics |
 | [Model card](docs/model-card.md) | Intended use, factors, metrics, limitations |
@@ -193,6 +196,7 @@ Jan-Feb-parquet/          # original aggregated exports (research use only)
 | [API](docs/api.md) | Endpoints, examples, error semantics |
 | [Deployment](docs/deployment.md) | Local, Docker, reverse proxy, configuration |
 | [Operations](docs/operations.md) | SLOs, monitoring, retraining, incident runbook |
+| [Showcase](docs/showcase.md) | Screens, links, and the reference result |
 | [Generality](docs/generality.md) | Adapting the same engine to products, content, SaaS, or another catalogue |
 | [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, expected outputs, CI |
 | [Governance](docs/governance.md) | Change control, releases, data ethics |
@@ -213,7 +217,7 @@ If you use the benchmark, code, or report, please cite:
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.1.0},
+  version = {2.2.0},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

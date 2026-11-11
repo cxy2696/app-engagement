@@ -2,6 +2,8 @@
 
 Start here:
 
+- [Showcase](showcase.md) — screenshots, links, and the reference result.
+- [Algorithm notes](algorithm.md) — scoring, percentiles, decision policy, complexity.
 - [Methodology](methodology.md) — task, models, leakage controls, statistics.
 - [Evaluation guide](evaluation.md) — reproduce the benchmark and read the metrics.
 - [Generality](generality.md) — adapt the engine to products, content, SaaS, or another catalogue.

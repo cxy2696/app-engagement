@@ -20,6 +20,8 @@ def test_personalized_recommendations_exclude_seen(service, tiny_dataset):
     seen = {tiny_dataset.item_ids[i] for i in tiny_dataset.train[0].indices}
     assert not ({item.item_id for item in response.items} & seen)
     assert response.items[0].explanations
+    assert all(item.percentile is not None for item in response.items)
+    assert all(0.0 < item.percentile <= 1.0 for item in response.items)
 
 
 def test_cold_start_falls_back_to_popularity(service):

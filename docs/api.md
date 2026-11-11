@@ -21,7 +21,7 @@ dashboard adapts automatically.
 Liveness and model status. Always 200 if the process is alive.
 
 ```json
-{"status": "ok", "model_loaded": true, "version": "2.1.0", "error": null}
+{"status": "ok", "model_loaded": true, "version": "2.2.0", "error": null}
 ```
 
 ### `GET /readyz`
@@ -31,7 +31,7 @@ Readiness. 200 when an artefact is loaded, 503 otherwise.
 ### `GET /version`
 
 ```json
-{"name": "engagegraph", "version": "2.1.0"}
+{"name": "engagegraph", "version": "2.2.0"}
 ```
 
 ### `GET /v1/meta`
@@ -45,7 +45,7 @@ Model, dataset, and artefact provenance. The dashboard uses this on load.
   "labels": {"user": "panelist", "item": "app", "train_period": "January 2024"},
   "dataset": {"fingerprint": "822b17a4209c607144d1", "n_users": 34024, "n_items": 9848, "stats": {...}},
   "metrics": {"ndcg@10": 0.2685, "recall@10": 0.1522, ...},
-  "artifact": {"created_at": "...", "package_version": "2.1.0", "fingerprint": "..."},
+  "artifact": {"created_at": "...", "package_version": "2.2.0", "fingerprint": "..."},
   "sample_users": ["...", "..."]
 }
 ```
@@ -82,6 +82,7 @@ Personalised ranking, with January items masked. Unknown users receive a popular
     {
       "item_id": "Discord",
       "score": 1.234,
+      "percentile": 0.997,
       "rank": 1,
       "explanations": [
         {"item_id": "Twitch", "reason": "users of Twitch also used this app", "contribution": 0.11}

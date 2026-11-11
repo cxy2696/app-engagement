@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "engagegraph"
-version = "2.1.0"
+version = "2.2.0"
 description = "Reproducible, production-ready app-engagement analytics and next-app recommendation on heterogeneous user-app graphs."
 readme = "README.md"
 requires-python = ">=3.10"

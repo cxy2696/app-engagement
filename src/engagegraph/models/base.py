@@ -34,12 +34,14 @@ class Recommendation:
     score: float
     rank: int
     explanations: list[Explanation] = field(default_factory=list)
+    percentile: float | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
             "item_id": self.item_id,
             "score": round(float(self.score), 6),
             "rank": self.rank,
+            "percentile": None if self.percentile is None else round(self.percentile, 6),
             "explanations": [e.as_dict() for e in self.explanations],
         }
 

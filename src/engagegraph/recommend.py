@@ -220,16 +220,23 @@ class RecommendationService:
         else:
             top = candidates[np.argsort(-scores[candidates])[:k]]
             selected = [int(i) for i in top]
+        candidate_scores = np.sort(scores[candidates])
 
         items = []
         for rank, item_idx in enumerate(selected, start=1):
             reasons = self._safe_explain(user_idx, item_idx) if explain else []
+            # Within-user percentile: fraction of unseen candidates at or below
+            # this score.  Unlike the raw score it is comparable across users
+            # and is a deterministic, distribution-free confidence signal.
+            position = int(np.searchsorted(candidate_scores, scores[item_idx], side="right"))
+            percentile = position / max(candidate_scores.size, 1)
             items.append(
                 Recommendation(
                     item_id=self.item_ids[item_idx],
                     score=float(scores[item_idx]),
                     rank=rank,
                     explanations=reasons,
+                    percentile=float(percentile),
                 )
             )
         return RecommendationResponse(
@@ -329,7 +336,14 @@ class RecommendationService:
         start, end = self.history.indptr[user_idx], self.history.indptr[user_idx + 1]
         indices = self.history.indices[start:end]
         weights = self.history.data[start:end]
-        order = np.argsort(-weights)[:10]
+        visible = np.array(
+            [position for position, item in enumerate(indices) if int(item) not in self.blocked],
+            dtype=np.int64,
+        )
+        if visible.size:
+            order = visible[np.argsort(-weights[visible])[:10]]
+        else:
+            order = np.array([], dtype=np.int64)
         top = [
             {"item_id": self.item_ids[int(indices[i])], "engagement": float(weights[i])}
             for i in order

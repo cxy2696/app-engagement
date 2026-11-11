@@ -8,7 +8,7 @@ This guide gives the exact commands, definitions, and expected outputs for repro
 engagegraph data build --config configs/benchmark.yaml --out data/processed
 ```
 
-Expected summary (v2.1.0, default config):
+Expected summary (v2.2.0, default config):
 
 ```text
 Domain              : app-engagement (apps)

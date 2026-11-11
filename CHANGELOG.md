@@ -2,13 +2,34 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] — 2026-11-12
+
+### Added
+
+- Instrument-cluster dashboard: dark telemetry UI, central NDCG gauge, mini hit-rate/recall gauges, provenance strip, and responsive layout inspired by automotive clusters.
+- Within-user score percentile (`percentile` in the recommendation response; `TOP x%` in the UI) as a distribution-free, cross-user confidence signal.
+- `docs/algorithm.md` documenting scoring, percentile math, decision policy, MMR, complexity, and explicit non-claims.
+- `docs/showcase.md` with screenshots and links to release, report, audit, API, and profiles.
+- Optional `data.domain.blocklist` filtering in user profiles.
+
+### Changed
+
+- Dashboard labels and reasons now use domain vocabulary and training-period labels.
+- Removed duplicated `paper/figures/` copies, the duplicate `reports/engagegraph-technical-report.pdf`, and the duplicate full `profiles/app-engagement.yaml` (the canonical app profile is `configs/benchmark.yaml`).
+- Removed the metrics table from the dashboard; the reference table lives in the showcase and report.
+
+### Fixed
+
+- `[hidden]` modes no longer render due to CSS display rules.
+- Gauge labels scale dynamically when the NDCG axis maximum changes.
+
 ## [2.1.0] — 2026-11-12
 
 ### Added
 
 - Domain profiles: `data.domain` controls user/item vocabulary, task labels, display tagline, and an optional serving blocklist.
 - Generic data paths and formats: `train_path`/`test_path`, CSV/TSV/JSONL/Parquet, optional `weight_col` (unit weights), optional `time_col`.
-- `profiles/app-engagement.yaml`, `profiles/generic-interactions.yaml`, and `profiles/ecommerce.example.yaml`, plus a synthetic generic CSV example.
+- `configs/benchmark.yaml` (app reference), `profiles/generic-interactions.yaml`, and `profiles/ecommerce.example.yaml`, plus a synthetic generic CSV example.
 - Canonical `/v1/items/similar` endpoint; `/v1/apps/similar` remains a backwards-compatible alias.
 - Generic profile fields (`n_items`, `top_items`) while preserving 2.0 keys (`n_apps`, `top_apps`).
 - Domain-aware dashboard labels driven by `/v1/meta`.

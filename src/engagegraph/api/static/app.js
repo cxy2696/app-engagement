@@ -24,17 +24,13 @@ function titleCase(value) {
   return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 }
 
-function setText(id, value) {
-  const node = document.getElementById(id);
-  if (node && value) node.textContent = value;
-}
-
 function applyDomain(meta) {
   const domain = { ...state.domain, ...(meta.domain || {}) };
   state.domain = domain;
   const itemPlural = domain.item_label_plural;
   const userPlural = domain.user_label_plural;
   setText("hero-eyebrow", `${domain.task_name} · ${domain.train_period_label} → ${domain.test_period_label}`);
+  setText("band-period", `${domain.train_period_label.toUpperCase()} → ${domain.test_period_label.toUpperCase()}`);
   setText("hero-item", domain.item_label);
   setText("hero-copy", domain.tagline);
   setText("kpi-users-label", titleCase(userPlural));
@@ -88,8 +84,36 @@ async function api(path) {
 
 function setStatus(ok, label) {
   const pill = $("#status-pill");
+  if (!pill) return;
   pill.textContent = label;
-  pill.className = `pill ${ok ? "pill-ok" : "pill-warn"}`;
+  pill.classList.toggle("is-error", !ok);
+}
+
+function setText(id, value) {
+  const node = document.getElementById(id);
+  if (node && value !== undefined && value !== null) node.textContent = value;
+}
+
+function setGauge(ndcg) {
+  const value = Number(ndcg);
+  if (!Number.isFinite(value)) return;
+  const max = value > 0.4 ? Math.ceil(value * 10) / 10 : 0.4;
+  const progress = Math.max(0.02, Math.min(1, value / max));
+  const ring = document.getElementById("gauge-ring");
+  if (ring) ring.style.setProperty("--arc", `${(progress * 270).toFixed(2)}deg`);
+  setText("gauge-value", value.toFixed(4));
+  setText("gauge-scale", `SCALE 0–${max.toFixed(2)}`);
+  document.querySelectorAll(".gauge-label").forEach((node, index) => {
+    const tick = (max * index) / 4;
+    node.textContent = index === 0 ? "0" : tick.toFixed(2).replace(/^0/, "");
+  });
+}
+
+function setMiniGauge(id, value) {
+  const node = document.getElementById(id);
+  if (!node) return;
+  const numeric = Math.max(0, Math.min(1, Number(value) || 0));
+  node.style.setProperty("--v", `${(numeric * 360).toFixed(1)}deg`);
 }
 
 function showEmpty(message) {
@@ -150,6 +174,12 @@ function renderRecommendations(payload) {
     $(".rank", node).textContent = item.rank;
     $(".app-name", node).textContent = item.item_id;
     $(".score", node).textContent = Number(item.score).toFixed(3);
+    const percentile = $(".percentile", node);
+    if (percentile) {
+      percentile.textContent = item.percentile == null
+        ? ""
+        : `TOP ${Math.max(0.1, (1 - Number(item.percentile)) * 100).toFixed(1)}%`;
+    }
     const width = 18 + 82 * ((Number(item.score) - low) / span);
     $(".score-fill", node).style.width = `${Math.max(4, Math.min(100, width))}%`;
     const reasons = $(".reasons", node);
@@ -231,48 +261,28 @@ async function similar(itemId) {
   }
 }
 
-function renderMetricsTable(meta) {
-  const body = $("#metrics-table tbody");
-  body.replaceChildren();
-  const rows = meta.benchmark && Array.isArray(meta.benchmark) && meta.benchmark.length
-    ? meta.benchmark
-    : [{
-        model: meta.model.model_type,
-        "ndcg@10": meta.metrics["ndcg@10"],
-        "recall@10": meta.metrics["recall@10"],
-        "coverage@10": meta.metrics["coverage@10"],
-      }];
-  rows.forEach((row) => {
-    const tr = document.createElement("tr");
-    const cells = [
-      row.model || row.name || "active",
-      formatMetric(row["ndcg@10"]),
-      formatMetric(row["recall@10"]),
-      formatMetric(row["coverage@10"], 3),
-    ];
-    cells.forEach((value, index) => {
-      const td = document.createElement("td");
-      td.textContent = value;
-      if (index > 0) td.className = "mono";
-      tr.append(td);
-    });
-    body.append(tr);
-  });
-}
-
 function applyMeta(meta) {
   state.meta = meta;
   applyDomain(meta);
   const stats = meta.dataset.stats || {};
-  $("#kpi-users").textContent = formatNumber(meta.dataset.n_users || stats.n_users);
-  $("#kpi-items").textContent = formatNumber(meta.dataset.n_items || stats.n_items);
-  $("#kpi-interactions").textContent = formatNumber(stats.n_train_interactions);
-  $("#kpi-ndcg").textContent = formatMetric(meta.metrics["ndcg@10"]);
-  $("#kpi-model").textContent = meta.model.model_type;
-  $("#meta-model").textContent = `${meta.model.model_type} · ${meta.model.params ? JSON.stringify(meta.model.params) : ""}`;
-  $("#meta-fingerprint").textContent = meta.dataset.fingerprint || "—";
-  $("#meta-artifact").textContent = meta.artifact.fingerprint || "—";
-  renderMetricsTable(meta);
+  const metrics = meta.metrics || {};
+  const ndcg = metrics["ndcg@10"];
+  setText("band-users", formatNumber(meta.dataset.n_users || stats.n_users));
+  setText("band-model", String(meta.model.model_type || "model").toUpperCase());
+  setText("kpi-users", formatNumber(meta.dataset.n_users || stats.n_users));
+  setText("kpi-items", formatNumber(meta.dataset.n_items || stats.n_items));
+  setText("kpi-interactions", formatNumber(stats.n_train_interactions));
+  setText("status-cold", formatNumber(stats.cold_start_test_users ?? stats.cold_start_february_users));
+  setText("meta-fingerprint", meta.dataset.fingerprint || "—");
+  setText("footer-model", `${meta.model.model_type} · ${meta.dataset.fingerprint || ""}`);
+  setGauge(ndcg);
+  setMiniGauge("mini-hit", metrics["hit_rate@10"]);
+  setMiniGauge("mini-recall", metrics["recall@10"]);
+  setText("mini-hit-value", ndcg === undefined ? "—" : `${(Number(metrics["hit_rate@10"] || 0) * 100).toFixed(1)}%`);
+  setText("mini-recall-value", `${(Number(metrics["recall@10"] || 0) * 100).toFixed(1)}%`);
+  setText("coverage-value", `${(Number(metrics["coverage@10"] || 0) * 100).toFixed(1)}%`);
+  setText("gauge-status", "LIVE");
+  setText("gauge-model", `NDCG@${stats.primary_k || 10}`);
   const samples = $("#sample-users");
   samples.replaceChildren();
   (meta.sample_users || []).forEach((user) => {
@@ -344,12 +354,12 @@ async function init() {
   try {
     const [meta, version] = await Promise.all([api("/v1/meta"), api("/version")]);
     applyMeta(meta);
-    $("#footer-version").textContent = `v${version.version}`;
-    setStatus(true, `${meta.model.model_type} loaded`);
+    setText("footer-version", `v${version.version}`);
+    setStatus(true, "READY");
     loadPopularApps();
     recommend($("#user-input").value.trim());
   } catch (error) {
-    setStatus(false, "model unavailable");
+    setStatus(false, "NO MODEL");
     showEmpty(`The API is running but no artefact is loaded. ${error.message}`);
   }
 }
