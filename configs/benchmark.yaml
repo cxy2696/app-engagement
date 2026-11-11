@@ -22,7 +22,7 @@ data:
     test_period_label: February 2024
     tagline: >-
       A reproducible pipeline for panel-scale app engagement: leakage-free temporal
-      splits, strong baselines, calibrated evaluation, and explanations grounded in
+      splits, reference baselines, paired-bootstrap evaluation, and explanations grounded in
       January co-usage.
     blocklist:
       - Android System

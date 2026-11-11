@@ -20,7 +20,7 @@ from engagegraph.models.itemknn import ItemKNNRecommender
 def main() -> int:
     dataset_path = Path("data/processed")
     if not (dataset_path / "manifest.json").exists():
-        raise SystemExit("run `engagegraph data build` first")
+        raise SystemExit("run `engagegraph data build --config configs/dataset.yaml` first")
     dataset = Dataset.load(dataset_path)
     model = ItemKNNRecommender(k=100).fit(dataset)
     result = evaluate(model, dataset, k_values=(10, 20, 50), primary_k=10)

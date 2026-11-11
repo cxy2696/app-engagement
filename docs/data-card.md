@@ -40,7 +40,7 @@ This is an **inference**, not a codebook fact. All benchmark metrics use relativ
 - **Outliers:** heavy right tail; the 99.9th percentile clip is applied in the pipeline. The maximum is treated as a data-quality outlier.
 - **Labels:** free-text app names, including non-English names, mojibake (`ParamÃ¨tres`), trailing spaces, full-width characters, and generic system apps (`Android System`, `Permission controller`). NFKC normalisation and whitespace collapsing are applied; semantic aliases are **not** merged.
 - **Coverage:** 93.4% of February rows for warm users fall inside the January catalogue (apps with ≥10 January users, capped at 9,848 items). The remaining 6.6% are February-only or low-support apps and are out of scope.
-- **Panel churn:** 10,875 February users have no January history; 28,286 users have at least one eligible February adoption.
+- **Panel churn:** 10,568 February users have no January history; 307 have January history but fewer than three catalogue items and are ineligible; 28,286 users have at least one eligible February adoption.
 
 ## 5. Benchmark construction
 

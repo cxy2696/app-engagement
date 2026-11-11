@@ -100,7 +100,7 @@ class ALSRecommender(BaseRecommender):
         self, user_index: int, item_index: int, dataset: Dataset, k: int = 3
     ) -> list[Explanation]:
         # Latent dimensions are not semantically labelled; co-usage is the
-        # honest, auditable explanation for this model.
+        # declarative, auditable explanation for this model.
         return super().explain(user_index, item_index, dataset, k)
 
     def get_state(self) -> dict[str, np.ndarray]:

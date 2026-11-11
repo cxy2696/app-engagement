@@ -333,9 +333,15 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
         binary=True,
     )
 
-    # Counters used by the report and API metadata.
+    # Counters used by the report and API metadata.  A cold-start user is one
+    # with no January history at all; an ineligible user has January history but
+    # was excluded by the minimum-history rule.  Keeping these separate avoids
+    # overstating the cold-start population.
     feb_users = set(feb["user"])
-    cold_users = len(feb_users - set(user_index))
+    january_users = set(jan["user"])
+    cold_users = len(feb_users - january_users)
+    ineligible_users = len((feb_users & january_users) - set(user_index))
+    warm_users = len(feb_users & set(user_index))
     common_feb = feb[feb["user"].isin(user_index)]
     catalog_coverage = float(common_feb["item"].isin(item_index).mean()) if len(common_feb) else 0.0
     target_counts = np.diff(test.indptr)
@@ -374,6 +380,8 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
         "test_period_users": len(feb_users),
         "cold_start_february_users": int(cold_users),
         "cold_start_test_users": int(cold_users),
+        "ineligible_test_users": int(ineligible_users),
+        "warm_test_users": int(warm_users),
         "catalog_coverage_of_february_rows": catalog_coverage,
         "catalog_coverage_of_test_rows": catalog_coverage,
         "catalog_items_total_january": int(jan["item"].nunique()),
@@ -458,7 +466,10 @@ def dataset_summary(dataset: Dataset) -> str:
         f"{stats['eval_users']:,} users",
         f"Targets per user    : mean {stats['mean_targets_per_eval_user']:.1f}, "
         f"median {stats['median_targets_per_eval_user']:.0f}",
+        f"Warm test users     : {stats.get('warm_test_users', 0):,}",
         f"Cold-start users    : {stats.get('cold_start_test_users', stats.get('cold_start_february_users', 0)):,}",
+        f"Ineligible users    : {stats.get('ineligible_test_users', 0):,} "
+        f"(< {stats.get('catalog_item_support_min', 10)} catalogue items)",
         f"Catalogue coverage  : {stats.get('catalog_coverage_of_test_rows', stats.get('catalog_coverage_of_february_rows', 0)):.1%} of "
         f"{domain.get('test_period_label', 'test period')} rows for warm {user_label}",
     ]

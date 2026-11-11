@@ -1,8 +1,8 @@
 # EngageGraph evaluation report
 
-Generated: 2026-11-11 17:14 UTC  
-Dataset fingerprint: `2b8d9290d5614afa22f6`  
-Package: `2.2.0`  
+Generated: 2026-11-11 17:56 UTC  
+Dataset fingerprint: `dca196daee55783bae1c`  
+Package: `2.2.1`  
 Domain: `app-engagement`  
 Primary metric: **NDCG@10**
 
@@ -25,7 +25,7 @@ Coverage and novelty are included because accuracy alone can hide a degenerate p
 | `als` vs `popularity` | -0.1357 | [-0.1380, -0.1335] | 0.0020 | 0.0060 |
 | `metapath2vec` vs `popularity` | -0.0712 | [-0.0731, -0.0692] | 0.0020 | 0.0060 |
 
-`n = 28,286` evaluation panelists; `10,875` February 2024 cold-start panelists are reported separately and are not in the personalised denominator.
+`n = 28,286` evaluation panelists; `10,568` February 2024 cold-start panelists and `307` ineligible panelists are reported separately and are not in the personalised denominator.
 
 ## Per-K metrics
 
@@ -47,7 +47,9 @@ Coverage and novelty are included because accuracy alone can hide a degenerate p
 
 ## Protocol recap
 
-January is used for all fitting; February only defines binary adoption labels for apps the user did not use in January. The candidate set is the full January catalogue, and all January apps are masked at scoring time. Metrics are macro-averaged over users. Hyperparameters were fixed before the February evaluation. Full details: [`docs/methodology.md`](../docs/methodology.md).
+January 2024 is used for all fitting; February 2024 only defines binary adoption labels for apps the user did not use in January 2024. The candidate set is the full January 2024 catalogue, and all January 2024 items are masked at scoring time. Metrics are macro-averaged over users. Primary configurations were fixed before the test period; post-hoc MetaPath2Vec/item-kNN diagnostics are disclosed in docs/methodology.md §3.5.
+
+Full details: [`docs/methodology.md`](../docs/methodology.md).
 
 ## Reading the result
 
@@ -65,7 +67,7 @@ Coverage differences matter: a model with higher NDCG but near-zero coverage is 
 ## Reproduce
 
 ```bash
-engagegraph data build --out data/processed
+engagegraph data build --config configs/benchmark.yaml --out data/processed
 engagegraph benchmark --config configs/benchmark.yaml
 engagegraph report --benchmark artifacts/runs/benchmark.json --out reports
 ```

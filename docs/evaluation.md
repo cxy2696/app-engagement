@@ -8,7 +8,7 @@ This guide gives the exact commands, definitions, and expected outputs for repro
 engagegraph data build --config configs/benchmark.yaml --out data/processed
 ```
 
-Expected summary (v2.2.0, default config):
+Expected summary (v2.2.1, default config):
 
 ```text
 Domain              : app-engagement (apps)
@@ -16,7 +16,8 @@ Users x items       : 34,024 x 9,848
 Train interactions  : 2,077,959 (density 0.62%)
 Test targets        : 561,231 across 28,286 users
 Targets per user    : mean 19.8, median 15
-February cold users : 10,875
+February cold users : 10,568
+Ineligible users    : 307
 Catalogue coverage  : 93.4% of February rows for warm users
 ```
 
@@ -84,7 +85,7 @@ The interval is a paired user-level bootstrap over 1,000 resamples. `p_holm` is 
 
 ## 5. Slices and sensitivity
 
-- **Cold start:** 10,875 February users have no January history. They are not in the personalised ranking denominator. `engagegraph data stats` reports the count; the API returns `strategy="cold_start_popularity"` for them.
+- **Cold start:** 10,568 February users have no January history. A further 307 have January history but fewer than three catalogue items; they are ineligible and reported separately. Neither group is in the personalised ranking denominator. `engagegraph data stats` reports both counts; the API returns `strategy="cold_start_popularity"` for any identifier outside the fitted cohort.
 - **Weight transform:** rerun with `--weight-transform binary` and a different `--out`/config to test sensitivity. The primary benchmark uses `log1p`.
 - **Support threshold:** `--min-item-users 5` or `20` changes the catalogue; rerun the benchmark and report the change rather than mixing catalogues.
 - **Model hyperparameters:** primary configs fixed before February. Post-hoc MetaPath2Vec and item-kNN diagnostics are disclosed in [`methodology.md`](methodology.md) §3.5; exploratory sweeps are labelled, not used to select the headline model.

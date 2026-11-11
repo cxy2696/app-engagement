@@ -7,7 +7,7 @@ EngageGraph is a single Python service plus a static dashboard. It can run on a 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[als]"
-engagegraph data build --out data/processed
+engagegraph data build --config configs/benchmark.yaml --out data/processed
 engagegraph benchmark --config configs/benchmark.yaml
 engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 ```
@@ -17,10 +17,10 @@ Open <http://127.0.0.1:8000>. The dashboard calls the same API it documents; the
 ## 2. Docker
 
 ```bash
-docker build -t engagegraph:2.2.0 .
+docker build -t engagegraph:2.2.1 .
 docker run --rm -p 8000:8000 \
   -v "$PWD/artifacts:/app/artifacts:ro" \
-  engagegraph:2.2.0
+  engagegraph:2.2.1
 ```
 
 The image runs as a non-root user, exposes port 8000, and has a `HEALTHCHECK` against `/readyz`. Mount artefacts read-only; the service never writes to them.

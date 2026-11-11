@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-11T17:14:47.899810+00:00",
-  "dataset_fingerprint": "2b8d9290d5614afa22f6",
+  "generated_at": "2026-11-11T17:56:18.419908+00:00",
+  "dataset_fingerprint": "dca196daee55783bae1c",
   "primary_metric": "ndcg@10",
   "models": {
     "popularity": {
@@ -33,7 +33,7 @@
         "gini@10": 0.9965449850095058
       },
       "n_eval_users": 28286,
-      "runtime_sec": 2.966137958006584
+      "runtime_sec": 2.8262619999877643
     },
     "itemknn": {
       "metrics": {
@@ -65,7 +65,7 @@
         "gini@10": 0.9964045781820172
       },
       "n_eval_users": 28286,
-      "runtime_sec": 2.7741913339996245
+      "runtime_sec": 2.585342958002002
     },
     "als": {
       "metrics": {
@@ -97,7 +97,7 @@
         "gini@10": 0.9344659053776636
       },
       "n_eval_users": 28286,
-      "runtime_sec": 3.19355258300493
+      "runtime_sec": 2.89655458299967
     },
     "metapath2vec": {
       "metrics": {
@@ -129,7 +129,7 @@
         "gini@10": 0.9978756810799843
       },
       "n_eval_users": 28286,
-      "runtime_sec": 3.414262708000024
+      "runtime_sec": 3.195262916997308
     }
   },
   "comparisons": [
@@ -186,7 +186,7 @@
       "task_name": "next-month new-app adoption ranking",
       "train_period_label": "January 2024",
       "test_period_label": "February 2024",
-      "tagline": "A reproducible pipeline for panel-scale app engagement: leakage-free temporal splits, strong baselines, calibrated evaluation, and explanations grounded in January co-usage.",
+      "tagline": "A reproducible pipeline for panel-scale app engagement: leakage-free temporal splits, reference baselines, paired-bootstrap evaluation, and explanations grounded in January co-usage.",
       "blocklist": [
         "Android System",
         "Settings",
@@ -227,8 +227,10 @@
     "median_targets_per_eval_user": 15.0,
     "february_users": 40001,
     "test_period_users": 40001,
-    "cold_start_february_users": 10875,
-    "cold_start_test_users": 10875,
+    "cold_start_february_users": 10568,
+    "cold_start_test_users": 10568,
+    "ineligible_test_users": 307,
+    "warm_test_users": 29126,
     "catalog_coverage_of_february_rows": 0.9342052547655868,
     "catalog_coverage_of_test_rows": 0.9342052547655868,
     "catalog_items_total_january": 74734,

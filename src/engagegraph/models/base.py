@@ -161,10 +161,6 @@ class BaseRecommender(ABC):
             return full_scores
         return full_scores[candidate_items]
 
-    @staticmethod
-    def _seen_mask(train: sparse.csr_matrix, user_indices: np.ndarray) -> np.ndarray:
-        return np.asarray(train[user_indices].toarray() > 0)
-
 
 def build_model(name: str, params: dict[str, Any] | None = None) -> BaseRecommender:
     """Factory used by configs and artefact loading."""

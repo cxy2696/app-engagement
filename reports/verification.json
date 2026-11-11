@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-11-11T17:29:12.225885+00:00",
+  "generated_at": "2026-11-11T17:57:25.772072+00:00",
   "passed": true,
-  "package_version": "2.2.0",
+  "package_version": "2.2.1",
   "python": "3.12.3 (v3.12.3:f6650f9ad7, Apr  9 2024, 08:18:47) [Clang 13.0.0 (clang-1300.0.29.30)]",
   "platform": "macOS-26.6.2-arm64-arm-64bit",
-  "runtime_sec": 63.69382525001129,
-  "dataset_fingerprint": "2b8d9290d5614afa22f6",
+  "runtime_sec": 54.91645525000058,
+  "dataset_fingerprint": "dca196daee55783bae1c",
   "n_users": 34024,
   "n_items": 9848,
   "checks": [
     {
       "check": "dataset fingerprint",
       "passed": true,
-      "detail": "2b8d9290d5614afa22f6 == 2b8d9290d5614afa22f6"
+      "detail": "dca196daee55783bae1c == dca196daee55783bae1c"
     },
     {
       "check": "train matrix",

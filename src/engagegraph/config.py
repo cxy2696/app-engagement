@@ -40,7 +40,7 @@ class DomainConfig(StrictModel):
     train_period_label: str = "train period"
     test_period_label: str = "test period"
     tagline: str = (
-        "A reproducible pipeline for leakage-free temporal splits, honest baselines, "
+        "A reproducible pipeline for leakage-free temporal splits, reference baselines, "
         "and auditable next-item recommendations."
     )
     blocklist: tuple[str, ...] = ()
@@ -111,11 +111,6 @@ class DataConfig(StrictModel):
         if self.weight_col is not None and not self.weight_col.strip():
             raise ValueError("weight_col must be a column name or null")
         return self
-
-    def model_dump_domain(self) -> dict[str, Any]:
-        """Convenience for manifests without importing JSON helpers."""
-
-        return self.domain.model_dump(mode="json")
 
 
 class ModelConfig(StrictModel):

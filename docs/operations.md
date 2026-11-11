@@ -49,7 +49,7 @@ Alert candidates:
 
 ```bash
 # 1. Build a new benchmark from the latest complete months.
-engagegraph data build --jan <new-jan> --feb <new-feb> --out data/processed-<version>
+engagegraph data build --config configs/dataset.yaml --train <new-train> --test <new-test> --out data/processed-<version>
 
 # 2. Run the benchmark; keep all artefacts.
 ENGAGEGRAPH_DATA=data/processed-<version> engagegraph benchmark --config configs/benchmark.yaml

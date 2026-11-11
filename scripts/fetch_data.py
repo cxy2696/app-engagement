@@ -65,7 +65,7 @@ def main() -> int:
     out_dir = Path(args.out_dir)
     for name, (url, expected) in FILES.items():
         download(name, url, expected, out_dir, args.force)
-    print("data ready; run `engagegraph data build`")
+    print("data ready; run `engagegraph data build --config configs/dataset.yaml`")
     return 0
 
 

@@ -1,6 +1,6 @@
 # EngageGraph
 
-**Reproducible temporal engagement analytics and next-item recommendation — with an app-engagement reference benchmark, built to be operated rather than demonstrated.**
+Temporal next-item recommendation on panel data: a reproducible benchmark, four reference models, and a deployable API with a dashboard.
 
 [![CI](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml/badge.svg)](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/cxy2696/app-engagement)](https://github.com/cxy2696/app-engagement/releases)
@@ -8,119 +8,44 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-**[Showcase](docs/showcase.md)** · **[Technical report](paper/engagegraph-report.pdf)** · **[Evaluation report](reports/evaluation-report.md)** · **[Verification](docs/verification.md)** · **[Release](https://github.com/cxy2696/app-engagement/releases)**
-
-EngageGraph turns panel-scale app-usage exports into a **leakage-free temporal benchmark**, a set of **honest baselines**, and a **servable recommendation API** with a human-readable dashboard. It is the maintained successor to the original `app-engagement` research notebook.
-
-> **What changed.** The original notebook reported ROC-AUC 0.9257 from a transductive February setup with similarity-selected negatives, a broken cosine read-out, and no temporal ranking evaluation. EngageGraph replaces that with a January → February ranking protocol, full-catalogue seen-item masking, paired bootstrap confidence intervals, and an explicit audit of why the old number is not comparable. See [`reports/legacy-audit.md`](reports/legacy-audit.md).
+[Showcase](docs/showcase.md) · [Technical report](paper/engagegraph-report.pdf) · [Evaluation](reports/evaluation-report.md) · [Verification](docs/verification.md) · [Release](https://github.com/cxy2696/app-engagement/releases)
 
 ![EngageGraph dashboard](docs/assets/dashboard.png)
 
-## Why this repository exists
+## What this is
 
-App-engagement teams need to answer a deceptively simple question: **which app will this user adopt next month, and why?** A notebook can produce a number; an operable product needs much more:
+EngageGraph fits a model on one period and ranks items a user has not used before, for the next period. The reference dataset is a pseudonymous January–February 2024 mobile-app panel. The engine, evaluation, artefact format, and API work on any user × item interaction table; apps are a profile, not an assumption.
 
-| Research notebook | EngageGraph |
-| --- | --- |
-| One monolithic notebook | Typed package, CLI, API, and dashboard |
-| February edges used for fitting and testing | January fit, February labels only |
-| Balanced AUC with hand-picked negatives | Full-catalogue ranking with seen-item masking |
-| No uncertainty | Paired bootstrap CIs and Holm-corrected tests |
-| Pickled model blobs | Versioned, pickle-free artefacts with dataset fingerprints |
-| No failure handling | Cold-start fallback, health checks, metrics, runbooks |
-| No data documentation | Data card, model card, and licence boundaries |
+The original notebook reported ROC-AUC 0.9257 from February edges with similarity-selected negatives and a broken cosine read-out. Those choices do not estimate next-period ranking quality. The [legacy audit](reports/legacy-audit.md) documents the differences; this repository does not reuse the number.
 
 ## Quickstart
-
-### 1. Install
 
 ```bash
 git clone https://github.com/cxy2696/app-engagement.git
 cd app-engagement
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev,als,plots]"
-```
+pip install -e ".[dev,als,plots]"      # add ".[graph]" for MetaPath2Vec
 
-Python 3.10+ is supported. The graph model is optional:
-
-```bash
-pip install -e ".[graph]"
-```
-
-### 2. Build the benchmark
-
-The repository already contains the January/February aggregated exports under `Jan-Feb-parquet/`.
-
-```bash
 engagegraph data build --config configs/dataset.yaml --out data/processed
-```
-
-This applies the published filtering protocol: apps with ≥10 January users, users with ≥3 catalogue apps, a 10,000-item cap, and a 99.9th-percentile weight clip before `log1p`.
-
-### 3. Reproduce the benchmark
-
-```bash
 engagegraph benchmark --config configs/benchmark.yaml
-```
-
-This fits popularity, item-kNN, implicit ALS, and (when installed) MetaPath2Vec on the same January matrix, evaluates all of them on February, writes artefacts under `artifacts/runs/`, and runs paired bootstrap comparisons against popularity.
-
-For a single model:
-
-```bash
-engagegraph train --config configs/als.yaml
-```
-
-### 4. Serve the API and dashboard
-
-```bash
 engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 ```
 
-Open <http://127.0.0.1:8000> for the dashboard, <http://127.0.0.1:8000/docs> for OpenAPI, and <http://127.0.0.1:8000/metrics> for Prometheus text.
+Dashboard: <http://127.0.0.1:8000> · OpenAPI: `/docs` · Prometheus text: `/metrics`.
+
+The shortcut is:
 
 ```bash
-curl "http://127.0.0.1:8000/v1/users/<panelist-id>/recommendations?k=5"
+make demo && make serve
 ```
 
-## One engine, many domains
+## Protocol
 
-Apps are the reference dataset, not a hard-coded assumption. The engine,
-models, evaluation, artefact format, and API operate on generic user × item
-interactions. A small `domain` profile supplies vocabulary, file layout, and an
-optional serving blocklist:
+January 2024 is used to fit every mapping, catalogue statistic, popularity score, similarity matrix, and model parameter. February 2024 is used once, to label a user–item pair positive if the item is in the January catalogue and the user did not use it in January. At scoring time all January items are masked. The primary metric is NDCG@10, macro-averaged over users; confidence intervals are paired user-level bootstrap intervals (1,000 resamples), with Holm correction across model comparisons.
 
-```yaml
-data:
-  train_path: data/your_domain/train.parquet
-  test_path: data/your_domain/test.parquet
-  user_col: customer_id
-  item_col: sku
-  weight_col: revenue
-  weight_unit: unknown
-  domain:
-    name: ecommerce
-    user_label: customer
-    item_label: product
-    item_label_plural: products
-    task_name: next-period product adoption ranking
-    train_period_label: last quarter
-    test_period_label: current quarter
-    blocklist: []
-```
+Users with no January history (10,568) are a cold-start slice. Users with fewer than three catalogue items in January (307) are ineligible and are reported separately; neither group is silently mixed into the personalised denominator. Full protocol: [docs/evaluation.md](docs/evaluation.md) and [docs/methodology.md](docs/methodology.md).
 
-The API reports the domain labels in `/v1/meta`; the dashboard adapts its
-labels; the same evaluation and operations apply. See
-[`docs/generality.md`](docs/generality.md) and the ready-to-copy
-[`profiles/`](profiles/) directory (app, generic retail CSV, e-commerce
-template).
-
-```bash
-engagegraph data build --config profiles/generic-interactions.yaml --out data/processed-generic
-engagegraph benchmark --config profiles/generic-interactions.yaml
-```
-
-## Results
+## Reference result
 
 <!-- RESULTS_TABLE_START -->
 | Model | NDCG@10 (95% CI) | Recall@10 | MAP@10 | Coverage@10 | Novelty@10 |
@@ -130,103 +55,86 @@ engagegraph benchmark --config profiles/generic-interactions.yaml
 | `metapath2vec` | **0.1639** [0.1622, 0.1660] | 0.0933 | 0.0772 | 0.015 | 1.661 |
 | `als` | **0.0993** [0.0974, 0.1013] | 0.0798 | 0.0505 | 0.317 | 4.830 |
 
-Dataset fingerprint: `2b8d9290d5614afa22f6` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
+Dataset fingerprint: `dca196daee55783bae1c` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,568. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
 
-**Technical report:** [EngageGraph (PDF)](paper/engagegraph-report.pdf) · **Evaluation report:** [reports/evaluation-report.md](reports/evaluation-report.md) · **Legacy audit:** [reports/legacy-audit.md](reports/legacy-audit.md)
+The winner is item-kNN, not the graph model that motivated the original repository. ALS and MetaPath2Vec are reported with their coverage/novelty trade-offs rather than tuned away. See the [evaluation report](reports/evaluation-report.md) for intervals, Holm-corrected comparisons, and per-K metrics.
 
-The primary metric is **NDCG@10** over the full January catalogue with seen apps masked. Relevance is binary February adoption. Confidence intervals are paired user-level bootstrap intervals (1,000 resamples); p-values are Holm-corrected across models. Full protocol: [`docs/evaluation.md`](docs/evaluation.md).
+## One engine, several domains
 
-## Architecture
+A `domain` block supplies vocabulary and an optional serving blocklist; it does not enter the model or the metric.
 
-```mermaid
-flowchart LR
-    A[Monthly exports<br/>Parquet] --> B[Schema validation<br/>& cleaning]
-    B --> C[Temporal benchmark<br/>Jan fit / Feb labels]
-    C --> D[Models<br/>popularity · item-kNN · ALS · MetaPath2Vec]
-    D --> E[Ranking evaluation<br/>NDCG · Recall · coverage]
-    E --> F[Versioned artefact<br/>JSON + NPZ]
-    F --> G[FastAPI service]
-    F --> H[CLI batch scoring]
-    G --> I[Dashboard]
-    G --> J[Prometheus / logs]
-    K[Feedback log] --> L[Retraining & drift review]
+```yaml
+data:
+  train_path: data/your_domain/train.parquet
+  test_path: data/your_domain/test.parquet
+  user_col: customer_id
+  item_col: sku
+  weight_col: revenue
+  domain:
+    name: ecommerce
+    user_label: customer
+    item_label: product
+    item_label_plural: products
+    task_name: next-period product adoption ranking
+    blocklist: []
 ```
 
-Design rationale and extension points: [`docs/architecture.md`](docs/architecture.md).
+Profiles: [generic retail CSV](profiles/generic-interactions.yaml) (synthetic example), [e-commerce template](profiles/ecommerce.example.yaml), and the [app reference config](configs/benchmark.yaml). Details: [docs/generality.md](docs/generality.md).
 
-## The protocol in one paragraph
+```bash
+engagegraph data build --config profiles/generic-interactions.yaml --out data/processed-generic
+engagegraph benchmark --config profiles/generic-interactions.yaml
+```
 
-January is the only month used to fit mappings, catalogue statistics, popularity, item similarities, and model parameters. February is used once, to construct labels: a test label is a February interaction with an app the user did **not** use in January. Candidates are the full January catalogue (apps with ≥10 January users), and all January apps are masked at scoring time. This measures **next-month new-app discovery**, not repeat usage. Users with no February adoption are excluded from the ranking denominator but counted in the data card. February users absent from January are reported as a cold-start slice.
-
-## Operational features
-
-- **Self-contained artefacts** — JSON manifest, NumPy arrays, mappings, and January history; no pickle.
-- **Cold-start fallback** — unknown users receive popularity recommendations with `strategy="cold_start_popularity"`.
-- **Explanations** — every recommendation carries the strongest January co-usage reasons.
-- **Feedback capture** — append-only JSONL impressions/clicks for future online evaluation.
-- **Health & metrics** — `/healthz`, `/readyz`, `/metrics`, request IDs, latency headers.
-- **Docker** — non-root image with a health check; `compose.yaml` for one-command deployment.
-- **CI** — lint, type checks, unit/integration tests, package build, and a graph-model job.
-- **Runbooks** — retraining, drift review, incident response, and rollback in [`docs/operations.md`](docs/operations.md).
-
-## Repository layout
+## Layout
 
 ```text
-src/engagegraph/          # package: data, models, evaluation, API, CLI
-tests/                    # fast unit tests + synthetic integration tests
-configs/                  # reproducible experiment configurations
-docs/                     # methodology, data/model cards, deployment, operations
-paper/                    # LaTeX technical report and bibliography
-reports/                  # generated evaluation report and figures
-scripts/                  # data fetch, demo bootstrap, report/figure generation
-Jan-Feb-parquet/          # original aggregated exports (research use only)
+src/engagegraph/   package: data, models, evaluation, API, CLI
+tests/             unit, integration, and mathematical invariant tests
+configs/           canonical experiment configs
+profiles/          domain profiles and templates
+docs/              protocol, data/model cards, deployment, operations
+paper/             LaTeX technical report and PDF
+reports/           generated evaluation, audit, and verification reports
+scripts/           data fetch, demo, report, screenshot, verification
+Jan-Feb-parquet/   original aggregated exports (research use only)
 ```
 
 ## Documentation
 
-| Document | What it covers |
+| Document | Contents |
 | --- | --- |
-| [Methodology](docs/methodology.md) | Formal task, estimators, leakage controls, statistical analysis |
-| [Algorithm notes](docs/algorithm.md) | Scoring, percentiles, decision policy, complexity |
-| [Evaluation](docs/evaluation.md) | Exact protocol, commands, metric definitions |
-| [Data card](docs/data-card.md) | Provenance, schema, quality issues, intended use, ethics |
-| [Model card](docs/model-card.md) | Intended use, factors, metrics, limitations |
-| [Architecture](docs/architecture.md) | Components, data flow, design decisions |
-| [API](docs/api.md) | Endpoints, examples, error semantics |
-| [Deployment](docs/deployment.md) | Local, Docker, reverse proxy, configuration |
-| [Operations](docs/operations.md) | SLOs, monitoring, retraining, incident runbook |
-| [Showcase](docs/showcase.md) | Screens, links, and the reference result |
-| [Generality](docs/generality.md) | Adapting the same engine to products, content, SaaS, or another catalogue |
-| [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, expected outputs, CI |
-| [Verification](docs/verification.md) | Determinism, domain invariance, mathematical invariants |
-| [Governance](docs/governance.md) | Change control, releases, data ethics |
-| [中文说明](README.zh-CN.md) | 中文快速开始与项目说明 |
+| [Methodology](docs/methodology.md) | Task, estimators, leakage controls, statistics |
+| [Algorithm notes](docs/algorithm.md) | Item-kNN scoring, percentiles, decision policy |
+| [Evaluation](docs/evaluation.md) | Commands and metric definitions |
+| [Reproducibility](docs/reproducibility.md) | Seeds, fingerprints, environment |
+| [Verification](docs/verification.md) | Determinism, domain invariance, invariants |
+| [Data card](docs/data-card.md) | Provenance, schema, quality, privacy |
+| [Model card](docs/model-card.md) | Use, metrics, limitations |
+| [Generality](docs/generality.md) | Adapting to another catalogue |
+| [Architecture](docs/architecture.md) | Components and extension points |
+| [API](docs/api.md) | Endpoints and examples |
+| [Deployment](docs/deployment.md) | Docker, proxy, configuration |
+| [Operations](docs/operations.md) | SLOs, monitoring, retraining, incidents |
+| [Showcase](docs/showcase.md) | Screens, links, reference result |
+| [Governance](docs/governance.md) | Change control and releases |
+| [中文说明](README.zh-CN.md) | 中文快速开始 |
 
 ## Data and licence
 
-Code is released under the [Apache License 2.0](LICENSE). The panel data in `Jan-Feb-parquet/` is **not** covered by that licence and is provided for research reproducibility only; see [`DATA_LICENSE.md`](DATA_LICENSE.md). The exports are pseudonymous but remain potentially re-identifiable; do not attempt re-identification, and do not deploy the demo on public panelist IDs without access controls.
+Code is Apache-2.0. The panel exports in `Jan-Feb-parquet/` are **not** covered by that licence and are included for research reproducibility only; see [DATA_LICENSE.md](DATA_LICENSE.md). The identifiers are pseudonymous but potentially re-identifiable. Do not attempt re-identification or publish per-panelist records. The weight unit is inferred to be milliseconds from its distribution, not from a vendor codebook; see the [data card](docs/data-card.md).
 
-The weight column is inferred to be **milliseconds** from its distribution; this is documented as an inference, not a codebook fact. See the [data card](docs/data-card.md).
-
-## Citation
-
-If you use the benchmark, code, or report, please cite:
+## Citation and maintenance
 
 ```bibtex
 @software{engagegraph2026,
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.2.0},
+  version = {2.2.1},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```
 
-The graph model implements the metapath2vec objective from Dong et al. (KDD 2017); the implicit ALS baseline follows Hu, Koren & Volinsky (2008). Full references are in [`paper/refs.bib`](paper/refs.bib).
-
-## Contributing and maintenance
-
-Issues and pull requests are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and report security issues privately per [`SECURITY.md`](SECURITY.md). The maintenance policy, release cadence, and deprecation rules are in [`GOVERNANCE.md`](GOVERNANCE.md).
-
-**Maintainer:** Xinyi Cui ([@cxy2696](https://github.com/cxy2696)).
+Maintainer: Xinyi Cui, [xc535@cornell.edu](mailto:xc535@cornell.edu). Issues and pull requests are welcome; read [CONTRIBUTING.md](CONTRIBUTING.md) first. Security reports follow [SECURITY.md](SECURITY.md). Release and change policy: [GOVERNANCE.md](GOVERNANCE.md).

@@ -72,7 +72,7 @@ paper:
 	cd paper && latexmk -pdf -interaction=nonstopmode main.tex
 
 docker:
-	docker build -t engagegraph:2.2.0 .
+	docker build -t engagegraph:2.2.1 .
 
 lock:
 	$(PYTHON) -m pip freeze --exclude-editable > requirements-lock.txt

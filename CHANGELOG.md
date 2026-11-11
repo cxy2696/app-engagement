@@ -2,6 +2,18 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.2.1] — 2026-11-12
+
+### Fixed
+
+- Cold-start count now excludes the 307 February users who have January history but fewer than three catalogue items. Both groups are reported separately in the dataset manifest, README, data/model cards, reports, and paper. The benchmark metrics are unchanged; the dataset fingerprint changes because the recorded metadata changes.
+
+### Changed
+
+- Documentation pass: shorter README, plain-language protocol notes, corrected build commands (`--config` retained), and an explicit distinction between cold-start and ineligible users.
+- Removed marketing wording and an unverifiable AUC figure from the report prose.
+- Institutional contact: `xc535@cornell.edu`.
+
 ## [2.2.0] — 2026-11-12
 
 ### Added

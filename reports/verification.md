@@ -1,14 +1,14 @@
 # Reproducibility verification
 
-Generated: 2026-11-11T17:29:12.225885+00:00  
-Package: `2.2.0`  
+Generated: 2026-11-11T17:57:25.772072+00:00  
+Package: `2.2.1`  
 Python: `3.12.3`  
-Dataset fingerprint: `2b8d9290d5614afa22f6`  
+Dataset fingerprint: `dca196daee55783bae1c`  
 Status: **PASS**
 
 | Check | Result | Detail |
 | --- | --- | --- |
-| dataset fingerprint | PASS | 2b8d9290d5614afa22f6 == 2b8d9290d5614afa22f6 |
+| dataset fingerprint | PASS | dca196daee55783bae1c == dca196daee55783bae1c |
 | train matrix | PASS | 2,077,959 nnz, digest 358d16c6d8c459de799e |
 | test matrix | PASS | 561,231 nnz, digest 3077922bb79997291bbf |
 | item-kNN state | PASS | all state arrays byte-identical |

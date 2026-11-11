@@ -99,8 +99,8 @@ Swap the paths and labels for your data. For a binary interaction table, set
 
 Set a profile-level `processed_dir` (for example
 `data/processed-generic`) so two domains never overwrite each other's processed
-benchmark. `engagegraph data build --out ...` also selects the output directory
-explicitly. Do not share `data/processed` between domains.
+benchmark. `engagegraph data build --config <profile> --out ...` selects the output
+directory explicitly. Do not share `data/processed` between domains.
 
 ## 5. Domain examples
 

@@ -40,7 +40,7 @@ After `engagegraph data build` with the default config:
 
 - 34,024 users, 9,848 items, 2,077,959 training interactions.
 - 561,231 February targets across 28,286 evaluation users.
-- 10,875 February cold-start users.
+- 10,568 February cold-start users; 307 ineligible users.
 - 93.4% catalogue coverage of February rows for warm users.
 
 After `engagegraph benchmark`, each model writes an artefact and an `evaluation/` directory. `benchmark.json` contains aggregate metrics, timings, and paired comparisons. Exact metric values depend on the data snapshot, but the ordering and approximate magnitudes should be stable; see `reports/results.json` for the reference run.
@@ -50,7 +50,7 @@ After `engagegraph benchmark`, each model writes an artefact and an `evaluation/
 ```bash
 git checkout <commit>
 pip install -r requirements-lock.txt && pip install -e .
-engagegraph data build --out data/processed
+engagegraph data build --config configs/benchmark.yaml --out data/processed
 engagegraph evaluate \
   --artifact artifacts/runs/<run>/artifact \
   --dataset data/processed \

@@ -11,7 +11,7 @@
 \hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=teal!50!black,urlcolor=blue!50!black}
 
 \title{\textbf{EngageGraph}: A Reproducible Benchmark and Toolkit for\\Temporal App-Engagement Prediction}
-\author{Xinyi Cui\\Cornell University\\\texttt{xinyicui0108@outlook.com}}
+\author{Xinyi Cui\\Cornell University\\\texttt{xc535@cornell.edu}}
 \date{November 2026}
 
 \begin{document}
@@ -19,7 +19,7 @@
 \maketitle
 
 \begin{abstract}
-App-engagement prediction is often demonstrated with a single notebook, a balanced AUC, and a pickled model. That combination is difficult to audit, easy to leak, and hard to operate. We present EngageGraph, an open-source benchmark and toolkit for \emph{next-month new-app adoption} on panel-scale app-usage data. The protocol fits every component on January 2024, uses February only to construct binary adoption labels, ranks the full January catalogue with seen apps masked, and reports macro-averaged ranking metrics with paired user-level bootstrap intervals. We release four reference models---popularity, item-kNN, implicit ALS, and MetaPath2Vec---a pickle-free artefact format, a FastAPI service with cold-start handling and explanations, and a complete operational stack. On the January--February panel, item-kNN is the strongest reference model (NDCG@10 = \BestNDCG), while the graph embedding model underperforms despite its prominence in the original repository. We also audit the original notebook's reported 0.9257 AUC, identifying an elementwise cosine read-out, a February mapping mismatch, and a balanced-negative protocol that does not estimate deployment precision. The result is a benchmark designed to make negative results and operational trade-offs as visible as positive ones. The engine itself is domain-agnostic: domain profiles adapt vocabulary, file layout, and serving blocklists, and a synthetic retail example demonstrates the same pipeline outside apps.
+App-engagement prediction is often demonstrated with a single notebook, a balanced AUC, and a pickled model. That combination is difficult to audit, easy to leak, and hard to operate. We present EngageGraph, an open-source benchmark and toolkit for \emph{next-month new-app adoption} on panel-scale app-usage data. The protocol fits every component on January 2024, uses February only to construct binary adoption labels, ranks the full January catalogue with seen apps masked, and reports macro-averaged ranking metrics with paired user-level bootstrap intervals. We release four reference models---popularity, item-kNN, implicit ALS, and MetaPath2Vec---a pickle-free artefact format, a FastAPI service with cold-start handling and explanations, and a complete operational stack. On the January--February panel, item-kNN is the strongest reference model (NDCG@10 = \BestNDCG), while the graph embedding model underperforms despite its prominence in the original repository. We also audit the original notebook's reported 0.9257 AUC, identifying an elementwise cosine read-out, a February mapping mismatch, and a balanced-negative protocol that does not estimate deployment precision. The benchmark reports negative results and operational trade-offs alongside the best model. The engine is domain-agnostic: domain profiles adapt vocabulary, file layout, and serving blocklists, and a synthetic retail example exercises the same pipeline outside apps.
 \end{abstract}
 
 \section{Introduction}
@@ -49,7 +49,7 @@ We do not claim that item-kNN is the best possible model, nor that these results
 
 \section{Data}
 
-The panel contains monthly aggregates of foreground app duration for January and February 2024. The raw exports have \DatasetUsers{} eligible panelists, \DatasetItems{} catalogue apps, \TrainInteractions{} January interactions, and \TestTargets{} February adoption targets across \EvalUsers{} evaluation users. A further \ColdUsers{} February users have no January history and are reported as a cold-start slice. The weight column is inferred to be milliseconds from its distribution; all primary metrics are invariant to a global rescaling. The data card documents the unresolved provenance and the research-only licence.
+The panel contains monthly aggregates of foreground app duration for January and February 2024. The raw exports have \DatasetUsers{} eligible panelists, \DatasetItems{} catalogue apps, \TrainInteractions{} January interactions, and \TestTargets{} February adoption targets across \EvalUsers{} evaluation users. A further \ColdUsers{} February users have no January history and are reported as a cold-start slice; 307 more have January history but fewer than three catalogue items and are reported as ineligible. The weight column is inferred to be milliseconds from its distribution; all primary metrics are invariant to a global rescaling. The data card documents the unresolved provenance and the research-only licence.
 
 The catalogue is fixed from January: apps used by at least ten distinct panelists, capped at the 10{,}000 most-supported apps. Users need at least three catalogue apps in January. Weights are clipped at the 99.9th percentile and transformed with $\log(1+w)$. February is used only to label a user--app pair as an adoption if the app is in the January catalogue and was not used in January.
 
@@ -75,9 +75,9 @@ Uncertainty is estimated by a paired user-level bootstrap with 1{,}000 resamples
 
 Table~\ref{tab:main} reports the primary comparison. Item-kNN achieves the best NDCG@10 (\BestNDCG), improving on popularity with a paired interval that excludes zero (Table~\ref{tab:comparisons}). The gain is modest in absolute terms but consistent: a $\Delta$ of roughly 0.03 NDCG@10 corresponds to moving relevant apps earlier in a 10-item slate for a substantial fraction of users.
 
-ALS illustrates the difference between discrimination and top-$K$ ranking. It separates February positives from random negatives well (AUC around 0.89 in our diagnostic), but its top-10 slate is dominated by niche items: NDCG@10 falls to 0.099 while coverage rises to 0.317. This is a classic implicit-feedback failure mode: reconstruction quality does not imply calibration for a popularity-skewed ranking metric.
+ALS illustrates the difference between discrimination and top-$K$ ranking. It separates February positives from random negatives well in a pairwise diagnostic, but its top-10 slate is dominated by niche items: NDCG@10 falls to 0.099 while coverage rises to 0.317. This is a classic implicit-feedback failure mode: reconstruction quality does not imply calibration for a popularity-skewed ranking metric.
 
-MetaPath2Vec is weaker still under this protocol (NDCG@10 = 0.164 with profile scoring). The result is informative rather than embarrassing: a faithful implementation of a graph objective is not automatically a strong recommender, and the original repository's qualitative claims about app similarity did not constitute a ranking evaluation. We report it because omitting an inconvenient model would undermine the benchmark.
+MetaPath2Vec is weaker still under this protocol (NDCG@10 = 0.164 with profile scoring). A faithful implementation of a graph objective is not automatically a strong recommender, and the original repository's qualitative claims about app similarity did not constitute a ranking evaluation. We report it because omitting the model would weaken the comparison.
 
 Coverage and novelty expose the trade-off that accuracy alone hides. Popularity and item-kNN concentrate almost all impressions on a few dozen apps (coverage@10 of 0.006 and 0.013), whereas ALS spreads recommendations across a third of the catalogue. A product team may prefer a blend; the benchmark makes the choice explicit instead of hiding it inside a single metric.
 

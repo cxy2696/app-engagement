@@ -234,7 +234,7 @@ class RecommendationService:
             )
         candidates = np.flatnonzero(finite)
         if diversify:
-            selected = self._mmr(user_idx, scores, candidates, k, diversity_weight)
+            selected = self._mmr(scores, candidates, k, diversity_weight)
         else:
             top = candidates[np.argsort(-scores[candidates])[:k]]
             selected = [int(i) for i in top]
@@ -280,14 +280,10 @@ class RecommendationService:
             vectors = getattr(self.model, attribute, None)
             if isinstance(vectors, np.ndarray) and vectors.size:
                 return vectors.astype(np.float64, copy=False)
-        sim = getattr(self.model, "_sim", None)
-        if isinstance(sim, sparse.csr_matrix):
-            return None
         return None
 
     def _mmr(
         self,
-        user_idx: int,
         scores: np.ndarray,
         candidates: np.ndarray,
         k: int,

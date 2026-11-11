@@ -28,7 +28,7 @@ Yes, if you have lawful access. Convert to the three canonical columns (`user`, 
 
 Implement `BaseRecommender` (`fit`, `score_users`, `get_state`, `set_state`), register it in `models/base.py`, add a config, and run the benchmark. A new model must beat the baselines on paired users, not just on a balanced AUC.
 
-### Is the API production-ready?
+### Is the API ready for a production deployment?
 
 It is a reference implementation with the operational basics: health checks, request IDs, metrics, feedback capture, Docker, and runbooks. Before public deployment, add authentication, rate limiting at the proxy, TLS, and a privacy review. See [`docs/deployment.md`](deployment.md).
 

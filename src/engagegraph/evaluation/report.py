@@ -202,12 +202,29 @@ def build_report(
     dataset = summary.get("dataset_stats", {})
     domain = dataset.get("domain", {}) or {}
     item_label = domain.get("item_label_plural", "items")
+    item_label_plural = item_label
     user_label = domain.get("user_label_plural", "users")
     test_label = domain.get("test_period_label", "test period")
+    train_label = domain.get("train_period_label", "train period")
     cold_users = dataset.get("cold_start_test_users", dataset.get("cold_start_february_users", 0))
+    ineligible_users = dataset.get("ineligible_test_users", 0)
     comparison = _comparison_table(summary)
     table = _table(results, primary_k)
     per_k = _per_k_table(results)
+    eval_note = (
+        f"`n = {dataset.get('eval_users', 0):,}` evaluation {user_label}; "
+        f"`{cold_users:,}` {test_label} cold-start {user_label} and "
+        f"`{ineligible_users:,}` ineligible {user_label} are reported separately and are "
+        "not in the personalised denominator."
+    )
+    protocol_recap = (
+        f"{train_label} is used for all fitting; {test_label} only defines binary adoption "
+        f"labels for {item_label_plural} the user did not use in {train_label}. The candidate "
+        f"set is the full {train_label} catalogue, and all {train_label} items are masked at "
+        "scoring time. Metrics are macro-averaged over users. Primary configurations were "
+        "fixed before the test period; post-hoc MetaPath2Vec/item-kNN diagnostics are "
+        "disclosed in docs/methodology.md §3.5."
+    )
 
     lines = [
         "# EngageGraph evaluation report",
@@ -230,11 +247,7 @@ def build_report(
         "",
         comparison,
         "",
-        f"`n = {dataset.get('eval_users', 0):,}` evaluation {user_label}; "
-        f"`{cold_users:,}` {test_label} cold-start {user_label} are reported separately "
-        "and are not in the personalised denominator."
-        if isinstance(dataset.get("eval_users"), int)
-        else "Cold-start counts are reported in the dataset manifest.",
+        eval_note,
         "",
         "## Per-K metrics",
         "",
@@ -254,11 +267,9 @@ def build_report(
         "",
         "## Protocol recap",
         "",
-        "January is used for all fitting; February only defines binary adoption labels for "
-        "apps the user did not use in January. The candidate set is the full January "
-        "catalogue, and all January apps are masked at scoring time. Metrics are "
-        "macro-averaged over users. Hyperparameters were fixed before the February "
-        "evaluation. Full details: [`docs/methodology.md`](../docs/methodology.md).",
+        protocol_recap,
+        "",
+        "Full details: [`docs/methodology.md`](../docs/methodology.md).",
         "",
         "## Reading the result",
         "",
@@ -303,7 +314,7 @@ def build_report(
         "## Reproduce",
         "",
         "```bash",
-        "engagegraph data build --out data/processed",
+        "engagegraph data build --config configs/benchmark.yaml --out data/processed",
         "engagegraph benchmark --config configs/benchmark.yaml",
         "engagegraph report --benchmark artifacts/runs/benchmark.json --out reports",
         "```",
