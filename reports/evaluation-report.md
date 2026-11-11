@@ -1,8 +1,8 @@
 # EngageGraph evaluation report
 
-Generated: 2026-11-11 21:31 UTC  
-Dataset fingerprint: `dca196daee55783bae1c`  
-Package: `2.3.0`  
+Generated: 2026-11-11 22:09 UTC  
+Dataset fingerprint: `cbe6c5226c51f160477f`  
+Package: `2.3.1`  
 Domain: `app-engagement`  
 Primary metric: **NDCG@10**
 

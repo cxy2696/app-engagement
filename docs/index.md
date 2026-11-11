@@ -23,7 +23,7 @@ For researchers and reviewers.
 | [Algorithm notes](algorithm.md) | Scoring, percentile threshold, decision policy, complexity |
 | [Data card](data-card.md) | Provenance, schema, quality, privacy, licence |
 | [Model card](model-card.md) | Intended use, metrics, limitations |
-| [Technical report](../paper/engagegraph-report.pdf) | Six-page PDF with the full protocol and results |
+| [Technical report](paper/engagegraph-report.pdf) | Six-page PDF with the full protocol and results |
 | [Legacy audit](../reports/legacy-audit.md) | Why the original 0.9257 AUC is not comparable |
 
 ## Build and integrate
@@ -35,7 +35,7 @@ For engineers adding a domain or deploying the service.
 | [Generality](generality.md) | Data contract and domain profiles |
 | [API](api.md) | Endpoints, examples, error semantics |
 | [Deployment](deployment.md) | Local, Docker, reverse proxy, configuration |
-| [Profiles](../profiles/README.md) | Ready-to-copy domain configurations |
+| [Profiles](../configs/profiles/README.md) | Ready-to-copy domain configurations |
 
 ## Operate and maintain
 

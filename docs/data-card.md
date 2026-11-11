@@ -1,6 +1,6 @@
 # Data card: January–February 2024 app-engagement panel exports
 
-This card follows the spirit of *Datasheets for Datasets* (Gebru et al., 2021). It documents what is known, what is inferred, and what is **not** known about the data shipped in `Jan-Feb-parquet/`.
+This card follows the spirit of *Datasheets for Datasets* (Gebru et al., 2021). It documents what is known, what is inferred, and what is **not** known about the data shipped in `data/raw/`.
 
 ## 1. Identity
 

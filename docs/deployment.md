@@ -17,10 +17,10 @@ Open <http://127.0.0.1:8000>. The dashboard calls the same API it documents; the
 ## 2. Docker
 
 ```bash
-docker build -t engagegraph:2.3.0 .
+docker build -t engagegraph:2.3.1 .
 docker run --rm -p 8000:8000 \
   -v "$PWD/artifacts:/app/artifacts:ro" \
-  engagegraph:2.3.0
+  engagegraph:2.3.1
 ```
 
 The image runs as a non-root user, exposes port 8000, and has a `HEALTHCHECK` against `/readyz`. Mount artefacts read-only; the service never writes to them.

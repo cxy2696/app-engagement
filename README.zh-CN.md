@@ -8,7 +8,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-[展示页](docs/showcase.md) · [技术报告](paper/engagegraph-report.pdf) · [评估报告](reports/evaluation-report.md) · [可复现性验证](docs/reproducibility.md#6-verification) · [Release](https://github.com/cxy2696/app-engagement/releases)
+[展示页](docs/showcase.md) · [技术报告](docs/paper/engagegraph-report.pdf) · [评估报告](reports/evaluation-report.md) · [可复现性验证](docs/reproducibility.md#6-verification) · [Release](https://github.com/cxy2696/app-engagement/releases)
 
 ![EngageGraph 仪表盘](docs/assets/dashboard.png)
 
@@ -55,7 +55,7 @@ make demo && make serve
 | `metapath2vec` | **0.1639** [0.1622, 0.1660] | 0.0933 | 0.0772 | 0.015 | 1.661 |
 | `als` | **0.0993** [0.0974, 0.1013] | 0.0798 | 0.0505 | 0.317 | 4.830 |
 
-Dataset fingerprint: `dca196daee55783bae1c` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,568. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
+Dataset fingerprint: `cbe6c5226c51f160477f` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,568. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
 
 最强的是 item-kNN，而不是最初驱动仓库的图模型。ALS 与 MetaPath2Vec 的覆盖率/新颖度权衡也保留在报告中，没有通过调参隐藏。见 [评估报告](reports/evaluation-report.md)。
@@ -80,7 +80,7 @@ data:
     blocklist: []
 ```
 
-可直接使用：[通用零售 CSV 示例](profiles/generic-interactions.yaml)、[电商模板](profiles/ecommerce.example.yaml)、[应用参考配置](configs/benchmark.yaml)。详见 [docs/generality.md](docs/generality.md)。
+可直接使用：[通用零售 CSV 示例](configs/profiles/generic-interactions.yaml)、[电商模板](configs/profiles/ecommerce.example.yaml)、[应用参考配置](configs/benchmark.yaml)。详见 [docs/generality.md](docs/generality.md)。
 
 ## 目录
 
@@ -88,12 +88,12 @@ data:
 src/engagegraph/   数据、模型、评估、API、CLI
 tests/             单元/集成/数学不变量测试
 configs/           基准实验配置
-profiles/          领域配置与模板
+configs/profiles/  领域配置与示例 CSV
 docs/              协议、数据/模型卡、部署、运维
-paper/             LaTeX 技术报告与 PDF
+docs/paper/        LaTeX 技术报告与 PDF
 reports/           评估、审计、验证报告
 scripts/           数据获取、demo、报告、截图、验证
-Jan-Feb-parquet/   原始聚合导出（仅研究复现）
+data/raw/           原始聚合导出（仅研究复现）
 ```
 
 ## 文档
@@ -117,7 +117,7 @@ Jan-Feb-parquet/   原始聚合导出（仅研究复现）
 
 ## 数据与许可
 
-代码使用 Apache-2.0。`Jan-Feb-parquet/` 中的数据不适用该许可，仅用于研究复现；详见 [DATA_LICENSE.md](DATA_LICENSE.md)。ID 虽为假名化，仍可能被再识别；禁止再识别或公开个人级记录。权重单位是从分布推断的毫秒，并非厂商 codebook 事实；见 [数据卡](docs/data-card.md)。
+代码使用 Apache-2.0。`data/raw/` 中的数据不适用该许可，仅用于研究复现；详见 [DATA_LICENSE.md](DATA_LICENSE.md)。ID 虽为假名化，仍可能被再识别；禁止再识别或公开个人级记录。权重单位是从分布推断的毫秒，并非厂商 codebook 事实；见 [数据卡](docs/data-card.md)。
 
 ## 引用与维护
 
@@ -126,7 +126,7 @@ Jan-Feb-parquet/   原始聚合导出（仅研究复现）
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.3.0},
+  version = {2.3.1},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

@@ -26,7 +26,7 @@ The current maintainer is Xinyi Cui ([@cxy2696](https://github.com/cxy2696)).
 
 1. Update `CHANGELOG.md` and the version in `pyproject.toml` / `__init__.py`.
 2. Run `make check` (lint, tests, build) and the benchmark.
-3. Generate `reports/` and `paper/` PDF.
+3. Generate `reports/` and `docs/paper/` PDF.
 4. Tag `vX.Y.Z`; attach the wheel, report PDF, and benchmark artefacts to the GitHub release.
 5. Publish release notes with metric changes and known limitations.
 

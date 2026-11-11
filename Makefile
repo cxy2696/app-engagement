@@ -7,7 +7,7 @@ ARTIFACT ?= artifacts/demo
 help:
 	@echo "install        install core + dev dependencies"
 	@echo "install-graph  install torch + torch-geometric"
-	@echo "data           build data/processed from Jan-Feb-parquet"
+	@echo "data           build data/processed from data/raw"
 	@echo "benchmark      run all configured models"
 	@echo "train          train item-kNN only (fast demo)"
 	@echo "demo           build data + train item-kNN + print serve command"
@@ -18,7 +18,7 @@ help:
 	@echo "typecheck      mypy"
 	@echo "check          lint + format check + typecheck + test"
 	@echo "report         generate reports/ from artifacts/runs/benchmark.json"
-	@echo "paper          build paper/engagegraph-report.pdf"
+	@echo "paper          build docs/paper/engagegraph-report.pdf"
 	@echo "docker         build the container image"
 	@echo "lock           regenerate requirements-lock.txt"
 	@echo "clean          remove caches and generated runs (asks for confirmation)"
@@ -69,10 +69,10 @@ report:
 	$(PYTHON) -m engagegraph report --benchmark artifacts/runs/benchmark.json --out reports
 
 paper:
-	cd paper && latexmk -pdf -interaction=nonstopmode main.tex
+	cd docs/paper && latexmk -pdf -interaction=nonstopmode main.tex && cp main.pdf engagegraph-report.pdf
 
 docker:
-	docker build -t engagegraph:2.3.0 .
+	docker build -t engagegraph:2.3.1 .
 
 lock:
 	$(PYTHON) -m pip freeze --exclude-editable > requirements-lock.txt

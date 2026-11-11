@@ -6,7 +6,7 @@ type: software
 license: Apache-2.0
 repository-code: "https://github.com/cxy2696/app-engagement"
 url: "https://github.com/cxy2696/app-engagement"
-version: 2.3.0
+version: 2.3.1
 date-released: 2026-11-12
 authors:
   - family-names: Cui

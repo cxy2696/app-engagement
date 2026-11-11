@@ -1,8 +1,8 @@
 name: generic-interactions-example
 seed: 42
 data:
-  train_path: examples/generic/train.csv
-  test_path: examples/generic/test.csv
+  train_path: configs/examples/generic/train.csv
+  test_path: configs/examples/generic/test.csv
   format: csv
   user_col: user_id
   item_col: item_id

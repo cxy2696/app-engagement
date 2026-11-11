@@ -8,7 +8,7 @@ This guide gives the exact commands, definitions, and expected outputs for repro
 engagegraph data build --config configs/benchmark.yaml --out data/processed
 ```
 
-Expected summary (v2.3.0, default config):
+Expected summary (v2.3.1, default config):
 
 ```text
 Domain              : app-engagement (apps)
@@ -98,7 +98,7 @@ engagegraph report \
   --out reports
 ```
 
-This writes `reports/evaluation-report.md`, `reports/results.json`, and figures under `reports/figures/`. The technical report in `paper/` consumes the same JSON.
+This writes `reports/evaluation-report.md`, `reports/results.json`, and figures under `reports/figures/`. The technical report in `docs/paper/` consumes the same JSON.
 
 ## 7. Interpreting a result
 

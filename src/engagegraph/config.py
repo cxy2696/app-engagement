@@ -74,8 +74,8 @@ class DataConfig(StrictModel):
     generic style wins when both are present.
     """
 
-    jan_path: str = "Jan-Feb-parquet/jan_aggregated.parquet"
-    feb_path: str = "Jan-Feb-parquet/feb_aggregated.parquet"
+    jan_path: str = "data/raw/jan_aggregated.parquet"
+    feb_path: str = "data/raw/feb_aggregated.parquet"
     train_path: str | None = None
     test_path: str | None = None
     format: Literal["auto", "parquet", "csv", "jsonl"] = "auto"

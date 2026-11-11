@@ -5,7 +5,7 @@ file layout, and optional serving blocklist for a domain.
 
 | Profile | Domain | Notes |
 | --- | --- | --- |
-| [`../configs/benchmark.yaml`](../configs/benchmark.yaml) | mobile apps | Canonical reference benchmark; blocklists OS components. |
+| [`configs/benchmark.yaml`](../benchmark.yaml) | mobile apps | Canonical reference benchmark; blocklists OS components. |
 | [`generic-interactions.yaml`](generic-interactions.yaml) | synthetic retail | CSV + event counts; no app assumptions. |
 | [`ecommerce.example.yaml`](ecommerce.example.yaml) | e-commerce | Template; merge into a full config. |
 
@@ -22,5 +22,5 @@ The model code never reads `domain`; it only changes labels and the optional
 serving blocklist. This means the same evaluation and artefact format apply to
 apps, products, articles, courses, or SaaS features.
 
-See [`docs/generality.md`](../docs/generality.md) for the data contract and
+See [`docs/generality.md`](../../docs/generality.md) for the data contract and
 domain-specific caveats.

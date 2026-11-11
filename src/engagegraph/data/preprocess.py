@@ -423,12 +423,18 @@ def build_dataset(config: DataConfig, *, verbose: bool = False) -> Dataset:
         },
     }
 
+    # The fingerprint identifies the data and the processing decisions, not the
+    # filesystem location or display vocabulary. Moving a file or renaming a
+    # domain label must not invalidate a reproducible dataset.
+    fingerprint_config = config.model_dump(mode="json")
+    for metadata_key in ("jan_path", "feb_path", "train_path", "test_path", "domain", "weight_unit"):
+        fingerprint_config.pop(metadata_key, None)
     fingerprint_payload = {
         "user_ids": user_ids,
         "item_ids": item_ids,
         "train_nnz": int(train.nnz),
         "test_nnz": int(test.nnz),
-        "config": config.model_dump(mode="json"),
+        "config": fingerprint_config,
         "train_sha256": _sha256(config.train_file),
         "test_sha256": _sha256(config.test_file),
         "jan_sha256": _sha256(config.train_file),

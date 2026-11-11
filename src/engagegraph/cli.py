@@ -193,8 +193,8 @@ def cmd_doctor(args: argparse.Namespace) -> int:
             checks.append((optional, True, getattr(imported, "__version__", "installed")))
         except ImportError:
             checks.append((optional, False, "optional, not installed"))
-    data_ok = Path("Jan-Feb-parquet/jan_aggregated.parquet").exists()
-    checks.append(("legacy data files", data_ok, "Jan-Feb-parquet/"))
+    data_ok = Path("data/raw/jan_aggregated.parquet").exists()
+    checks.append(("legacy data files", data_ok, "data/raw/"))
     try:
         artifact = ModelRegistry().resolve()
         checks.append(("active artefact", True, str(artifact.path)))

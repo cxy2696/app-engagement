@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "engagegraph"
-version = "2.3.0"
+version = "2.3.1"
 description = "Temporal next-item recommendation with a reproducible app-engagement benchmark, reference baselines, and a deployable API."
 readme = "README.md"
 requires-python = ">=3.10"

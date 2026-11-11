@@ -7,10 +7,9 @@ __pycache__
 .ruff_cache
 .mypy_cache
 data
-Jan-Feb-parquet
+data/raw
 artifacts/runs
 reports
-paper
 docs
 tests
 *.parquet

@@ -100,7 +100,7 @@ def main() -> int:
     check("evaluation metrics", metric_diff == 0.0, f"max metric diff {metric_diff:.3e}")
 
     # Domain labels are metadata: same interaction table, different vocabulary.
-    generic = load_benchmark_config("profiles/generic-interactions.yaml")
+    generic = load_benchmark_config("configs/profiles/generic-interactions.yaml")
     generic_dataset = build_dataset(generic.data, verbose=False)
     renamed_panel = build_dataset(
         config.data.model_copy(update={"domain": generic.data.domain}), verbose=False

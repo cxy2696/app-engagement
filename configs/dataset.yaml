@@ -1,5 +1,5 @@
-jan_path: Jan-Feb-parquet/jan_aggregated.parquet
-feb_path: Jan-Feb-parquet/feb_aggregated.parquet
+jan_path: data/raw/jan_aggregated.parquet
+feb_path: data/raw/feb_aggregated.parquet
 user_col: PANELISTID
 item_col: APPDESCRIPTION
 weight_col: weight

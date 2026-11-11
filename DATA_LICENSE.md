@@ -1,6 +1,6 @@
 # Data licence and use notice
 
-The dataset files in `Jan-Feb-parquet/` (`jan_aggregated.parquet`, `feb_aggregated.parquet`) are **not** licensed under the Apache License 2.0 that covers the source code.
+The dataset files in `data/raw/` (`jan_aggregated.parquet`, `feb_aggregated.parquet`) are **not** licensed under the Apache License 2.0 that covers the source code.
 
 ## Status
 

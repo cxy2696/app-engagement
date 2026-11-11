@@ -8,7 +8,7 @@ Temporal next-item recommendation on panel data: a reproducible benchmark, four 
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
 
-[Showcase](docs/showcase.md) · [Technical report](paper/engagegraph-report.pdf) · [Evaluation](reports/evaluation-report.md) · [Verification](docs/reproducibility.md#6-verification) · [Release](https://github.com/cxy2696/app-engagement/releases)
+[Showcase](docs/showcase.md) · [Technical report](docs/paper/engagegraph-report.pdf) · [Evaluation](reports/evaluation-report.md) · [Verification](docs/reproducibility.md#6-verification) · [Release](https://github.com/cxy2696/app-engagement/releases)
 
 ![EngageGraph dashboard](docs/assets/dashboard.png)
 
@@ -55,7 +55,7 @@ Users with no January history (10,568) are a cold-start slice. Users with fewer 
 | `metapath2vec` | **0.1639** [0.1622, 0.1660] | 0.0933 | 0.0772 | 0.015 | 1.661 |
 | `als` | **0.0993** [0.0974, 0.1013] | 0.0798 | 0.0505 | 0.317 | 4.830 |
 
-Dataset fingerprint: `dca196daee55783bae1c` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,568. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
+Dataset fingerprint: `cbe6c5226c51f160477f` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,568. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
 
 The winner is item-kNN, not the graph model that motivated the original repository. ALS and MetaPath2Vec are reported with their coverage/novelty trade-offs rather than tuned away. See the [evaluation report](reports/evaluation-report.md) for intervals, Holm-corrected comparisons, and per-K metrics.
@@ -80,11 +80,11 @@ data:
     blocklist: []
 ```
 
-Profiles: [generic retail CSV](profiles/generic-interactions.yaml) (synthetic example), [e-commerce template](profiles/ecommerce.example.yaml), and the [app reference config](configs/benchmark.yaml). Details: [docs/generality.md](docs/generality.md).
+Profiles: [generic retail CSV](configs/profiles/generic-interactions.yaml) (synthetic example), [e-commerce template](configs/profiles/ecommerce.example.yaml), and the [app reference config](configs/benchmark.yaml). Details: [docs/generality.md](docs/generality.md).
 
 ```bash
-engagegraph data build --config profiles/generic-interactions.yaml --out data/processed-generic
-engagegraph benchmark --config profiles/generic-interactions.yaml
+engagegraph data build --config configs/profiles/generic-interactions.yaml --out data/processed-generic
+engagegraph benchmark --config configs/profiles/generic-interactions.yaml
 ```
 
 ## Layout
@@ -93,12 +93,12 @@ engagegraph benchmark --config profiles/generic-interactions.yaml
 src/engagegraph/   package: data, models, evaluation, API, CLI
 tests/             unit, integration, and mathematical invariant tests
 configs/           canonical experiment configs
-profiles/          domain profiles and templates
+configs/profiles/  domain profiles and example CSVs
 docs/              protocol, data/model cards, deployment, operations
-paper/             LaTeX technical report and PDF
+docs/paper/        LaTeX technical report and PDF
 reports/           generated evaluation, audit, and verification reports
 scripts/           data fetch, demo, report, screenshot, verification
-Jan-Feb-parquet/   original aggregated exports (research use only)
+data/raw/           original aggregated exports (research use only)
 ```
 
 ## Documentation
@@ -123,7 +123,7 @@ Jan-Feb-parquet/   original aggregated exports (research use only)
 
 ## Data and licence
 
-Code is Apache-2.0. The panel exports in `Jan-Feb-parquet/` are **not** covered by that licence and are included for research reproducibility only; see [DATA_LICENSE.md](DATA_LICENSE.md). The identifiers are pseudonymous but potentially re-identifiable. Do not attempt re-identification or publish per-panelist records. The weight unit is inferred to be milliseconds from its distribution, not from a vendor codebook; see the [data card](docs/data-card.md).
+Code is Apache-2.0. The panel exports in `data/raw/` are **not** covered by that licence and are included for research reproducibility only; see [DATA_LICENSE.md](DATA_LICENSE.md). The identifiers are pseudonymous but potentially re-identifiable. Do not attempt re-identification or publish per-panelist records. The weight unit is inferred to be milliseconds from its distribution, not from a vendor codebook; see the [data card](docs/data-card.md).
 
 ## Citation and maintenance
 
@@ -132,7 +132,7 @@ Code is Apache-2.0. The panel exports in `Jan-Feb-parquet/` are **not** covered 
   author  = {Cui, Xinyi},
   title   = {EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction},
   year    = {2026},
-  version = {2.3.0},
+  version = {2.3.1},
   url     = {https://github.com/cxy2696/app-engagement}
 }
 ```

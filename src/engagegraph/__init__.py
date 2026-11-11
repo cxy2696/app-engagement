@@ -7,5 +7,5 @@ Python objects below are re-exported for notebooks and downstream services.
 
 from __future__ import annotations
 
-__version__ = "2.3.0"
+__version__ = "2.3.1"
 __all__ = ["__version__"]

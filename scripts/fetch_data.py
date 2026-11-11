@@ -16,12 +16,12 @@ from pathlib import Path
 FILES = {
     "jan_aggregated.parquet": (
         "https://raw.githubusercontent.com/cxy2696/app-engagement/main/"
-        "Jan-Feb-parquet/jan_aggregated.parquet",
+        "data/raw/jan_aggregated.parquet",
         "dd81a42edcf3539977f723e943be6f67ae536434cb1821077fc84c2f1a16d879",
     ),
     "feb_aggregated.parquet": (
         "https://raw.githubusercontent.com/cxy2696/app-engagement/main/"
-        "Jan-Feb-parquet/feb_aggregated.parquet",
+        "data/raw/feb_aggregated.parquet",
         "336f68edb607b7f0e88055d4ea346b0d6978ec2866683af62e83a0f05b157ee4",
     ),
 }
@@ -59,7 +59,7 @@ def download(name: str, url: str, expected: str, out_dir: Path, force: bool) -> 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--out-dir", default="Jan-Feb-parquet")
+    parser.add_argument("--out-dir", default="data/raw")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     out_dir = Path(args.out_dir)

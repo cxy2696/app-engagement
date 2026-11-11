@@ -59,8 +59,8 @@ numbers.
 ## 4. Minimal generic example
 
 ```bash
-engagegraph data build --config profiles/generic-interactions.yaml --out data/processed-generic
-engagegraph benchmark --config profiles/generic-interactions.yaml
+engagegraph data build --config configs/profiles/generic-interactions.yaml --out data/processed-generic
+engagegraph benchmark --config configs/profiles/generic-interactions.yaml
 engagegraph serve --artifact artifacts/runs/generic/<run>/artifact --port 8001
 ```
 
@@ -68,8 +68,8 @@ The synthetic example uses:
 
 ```yaml
 data:
-  train_path: examples/generic/train.csv
-  test_path: examples/generic/test.csv
+  train_path: configs/examples/generic/train.csv
+  test_path: configs/examples/generic/test.csv
   format: csv
   user_col: user_id
   item_col: item_id

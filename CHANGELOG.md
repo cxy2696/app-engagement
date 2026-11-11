@@ -2,6 +2,25 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.3.1] — 2026-11-12
+
+### Changed
+
+- Repository layout: technical report under `docs/paper/`, domain profiles under
+  `configs/profiles/`, synthetic examples under `configs/examples/generic/`,
+  and raw exports under `data/raw/`. Old top-level `paper/`, `profiles/`,
+  `examples/`, and `Jan-Feb-parquet/` paths are removed.
+- Dataset fingerprints now exclude file paths and display vocabulary. Moving a
+  file or renaming a domain no longer changes the data identity; the
+  fingerprint is `cbe6c5226c51f160477f` for this snapshot.
+- Documentation index grouped into four task-oriented sections; verification
+  merged into reproducibility; glossary added.
+
+### Fixed
+
+- All links, configs, Makefile targets, report paths, and package defaults
+  updated for the new layout.
+
 ## [2.3.0] — 2026-11-12
 
 ### Added
@@ -56,7 +75,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 - Domain profiles: `data.domain` controls user/item vocabulary, task labels, display tagline, and an optional serving blocklist.
 - Generic data paths and formats: `train_path`/`test_path`, CSV/TSV/JSONL/Parquet, optional `weight_col` (unit weights), optional `time_col`.
-- `configs/benchmark.yaml` (app reference), `profiles/generic-interactions.yaml`, and `profiles/ecommerce.example.yaml`, plus a synthetic generic CSV example.
+- `configs/benchmark.yaml` (app reference), `configs/profiles/generic-interactions.yaml`, and `configs/profiles/ecommerce.example.yaml`, plus a synthetic generic CSV example.
 - Canonical `/v1/items/similar` endpoint; `/v1/apps/similar` remains a backwards-compatible alias.
 - Generic profile fields (`n_items`, `top_items`) while preserving 2.0 keys (`n_apps`, `top_apps`).
 - Domain-aware dashboard labels driven by `/v1/meta`.

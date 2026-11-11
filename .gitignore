@@ -15,8 +15,7 @@ artifacts/runs/
 artifacts/*.tar.gz
 reports/*.tmp
 
-# Data (existing Jan-Feb-parquet remains tracked for reproducibility)
-data/raw/
+# Data: raw exports are tracked; processed data is generated
 data/processed/
 !data/README.md
 
@@ -29,13 +28,14 @@ artifacts/demo/
 artifacts/registry.json
 
 # Paper build intermediates
-paper/*.aux
-paper/*.bbl
-paper/*.blg
-paper/*.fdb_latexmk
-paper/*.fls
-paper/*.log
-paper/*.out
-paper/main.pdf
+docs/paper/*.aux
+docs/paper/*.bbl
+docs/paper/*.blg
+docs/paper/*.fdb_latexmk
+docs/paper/*.fls
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/main.pdf
 
 data/processed-*/
+
