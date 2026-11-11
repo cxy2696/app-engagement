@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/cxy2696/app-engagement/security/advisories/new
+    about: Report vulnerabilities privately.
+  - name: Data provenance question
+    url: https://github.com/cxy2696/app-engagement/discussions
+    about: Ask about data licensing or provenance.

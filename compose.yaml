@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    image: engagegraph:2.0.0
+    ports:
+      - "8000:8000"
+    environment:
+      ENGAGEGRAPH_ARTIFACT: /app/artifacts/demo
+      ENGAGEGRAPH_FEEDBACK_DIR: /app/var/feedback
+      # ENGAGEGRAPH_API_KEY: change-me
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+      - ./var/feedback:/app/var/feedback
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1g

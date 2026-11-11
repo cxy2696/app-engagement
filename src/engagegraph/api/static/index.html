@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="EngageGraph — reproducible next-app recommendations with auditable explanations." />
+  <title>EngageGraph · app engagement, made legible</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="EngageGraph home">
+      <svg class="brand-mark" viewBox="0 0 40 40" role="img" aria-hidden="true">
+        <circle cx="9" cy="11" r="4"></circle>
+        <circle cx="30" cy="9" r="3"></circle>
+        <circle cx="31" cy="29" r="4"></circle>
+        <circle cx="11" cy="30" r="3"></circle>
+        <circle cx="20" cy="20" r="4.2"></circle>
+        <path d="M12.4 13.2 17 17.7M27.2 11.5 22.6 17.4M27.8 26.5 23 22.2M13.1 27.7 17.6 22.4"></path>
+      </svg>
+      <span>EngageGraph</span>
+    </a>
+    <nav class="topnav">
+      <a href="#workspace">Workspace</a>
+      <a href="#model">Model card</a>
+      <a href="/docs" target="_blank" rel="noreferrer">API</a>
+      <a href="https://github.com/cxy2696/app-engagement" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+    <span id="status-pill" class="pill pill-muted">connecting…</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Temporal app-adoption benchmark · January → February 2024</p>
+      <h1>Next-app recommendations<br /><em>you can audit.</em></h1>
+      <p class="lede">
+        A reproducible pipeline for panel-scale app engagement: leakage-free temporal splits,
+        strong baselines, calibrated evaluation, and explanations grounded in January co-usage.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#workspace">Explore a recommendation</a>
+        <a class="button button-ghost" href="#model">Read the model card</a>
+      </div>
+    </section>
+
+    <section class="kpis" aria-label="Dataset and model summary">
+      <article class="kpi"><span class="kpi-label">Panelists</span><strong id="kpi-users">—</strong><span class="kpi-note">January cohort</span></article>
+      <article class="kpi"><span class="kpi-label">Catalogue</span><strong id="kpi-items">—</strong><span class="kpi-note">apps with ≥10 users</span></article>
+      <article class="kpi"><span class="kpi-label">Interactions</span><strong id="kpi-interactions">—</strong><span class="kpi-note">user–app pairs</span></article>
+      <article class="kpi kpi-accent"><span class="kpi-label">NDCG@10</span><strong id="kpi-ndcg">—</strong><span class="kpi-note" id="kpi-model">active model</span></article>
+    </section>
+
+    <section id="workspace" class="workspace">
+      <div class="panel panel-input">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Workspace</p>
+            <h2>Ask the model</h2>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Workspace mode">
+            <button class="tab is-active" data-mode="recommend" role="tab" aria-selected="true">Recommend</button>
+            <button class="tab" data-mode="similar" role="tab" aria-selected="false">Similar apps</button>
+          </div>
+        </div>
+
+        <div id="mode-recommend" class="mode">
+          <label class="field-label" for="user-input">Panelist ID</label>
+          <div class="input-row">
+            <input id="user-input" type="text" spellcheck="false" autocomplete="off" placeholder="e.g. 1000123" />
+            <button id="recommend-button" class="button button-primary">Recommend</button>
+          </div>
+          <p class="hint">Pick a sample panelist or paste any ID from the January cohort.</p>
+          <div id="sample-users" class="chips" aria-label="Sample panelists"></div>
+
+          <div class="control-grid">
+            <label class="control">Results
+              <select id="k-select">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+              </select>
+            </label>
+            <label class="switch">
+              <input id="explain-toggle" type="checkbox" checked />
+              <span class="switch-track" aria-hidden="true"></span>
+              <span>Show reasons</span>
+            </label>
+            <label class="switch">
+              <input id="diversify-toggle" type="checkbox" />
+              <span class="switch-track" aria-hidden="true"></span>
+              <span>Diversify</span>
+            </label>
+          </div>
+
+          <div id="profile" class="profile" hidden></div>
+        </div>
+
+        <div id="mode-similar" class="mode" hidden>
+          <label class="field-label" for="item-input">App name</label>
+          <div class="input-row">
+            <input id="item-input" type="text" list="popular-apps" spellcheck="false" autocomplete="off" placeholder="Start typing an app…" />
+            <button id="similar-button" class="button button-primary">Find similar</button>
+          </div>
+          <datalist id="popular-apps"></datalist>
+          <p class="hint">Similarity is cosine over January co-usage or the active model's item geometry.</p>
+          <div id="similar-result" class="result-list" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="panel panel-output">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow" id="output-eyebrow">Recommendations</p>
+            <h2 id="output-title">Waiting for a panelist</h2>
+          </div>
+          <span id="latency" class="mono muted"></span>
+        </div>
+        <div id="output" class="result-list" aria-live="polite">
+          <div class="empty-state">
+            <div class="empty-graph" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <p>Choose a panelist to see ranked apps, scores, and the January co-usage that supports each recommendation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="model" class="model-grid">
+      <article class="panel">
+        <p class="eyebrow">Evaluation</p>
+        <h2>What the numbers mean</h2>
+        <p class="body-copy">
+          Each January panelist is scored against the full catalogue, with January apps masked.
+          A hit is an app they adopt in February but had not used in January. Relevance is binary;
+          the primary metric is NDCG@10, macro-averaged over users.
+        </p>
+        <div class="table-wrap">
+          <table id="metrics-table">
+            <thead><tr><th>Model</th><th>NDCG@10</th><th>Recall@10</th><th>Coverage</th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="fineprint">
+          Only the active artefact's aggregate metrics are exposed by this demo. Full per-model
+          results, confidence intervals, and Holm-corrected comparisons live in
+          <code>reports/evaluation-report.md</code>.
+        </p>
+      </article>
+
+      <article class="panel">
+        <p class="eyebrow">Provenance</p>
+        <h2>Model card</h2>
+        <dl class="meta-list">
+          <div><dt>Task</dt><dd>Next-month new-app adoption ranking</dd></div>
+          <div><dt>Train window</dt><dd>January 2024</dd></div>
+          <div><dt>Test window</dt><dd>February 2024</dd></div>
+          <div><dt>Active model</dt><dd id="meta-model">—</dd></div>
+          <div><dt>Dataset fingerprint</dt><dd id="meta-fingerprint" class="mono">—</dd></div>
+          <div><dt>Artefact</dt><dd id="meta-artifact" class="mono">—</dd></div>
+          <div><dt>Licence</dt><dd>Apache-2.0 (code); data research-use only</dd></div>
+        </dl>
+        <div class="callout">
+          <strong>Academic honesty note.</strong> This release replaces the original notebook's
+          transductive AUC with a temporal ranking benchmark. The legacy 0.9257 AUC is not
+          comparable: it trained and tested on February edges and used similarity-selected
+          negatives. See <code>reports/legacy-audit.md</code>.
+        </div>
+      </article>
+    </section>
+
+    <section class="principles">
+      <article><span class="num">01</span><h3>Leakage-free by construction</h3><p>Mappings, catalogue, popularity, and model parameters are fit on January only. February is used once, for labels.</p></article>
+      <article><span class="num">02</span><h3>Baselines that can win</h3><p>Popularity and item-kNN are first-class. A graph model earns its place only when it beats them on paired users.</p></article>
+      <article><span class="num">03</span><h3>Operable, not just runnable</h3><p>Versioned artefacts, health checks, Prometheus counters, feedback capture, Docker, and a retraining runbook.</p></article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>EngageGraph 2.0 · built for reproducible app-engagement research</span>
+    <span class="mono" id="footer-version"></span>
+  </footer>
+
+  <template id="recommendation-template">
+    <article class="result-card">
+      <div class="rank"></div>
+      <div class="result-main">
+        <div class="result-title-row"><h3 class="app-name"></h3><span class="score mono"></span></div>
+        <div class="score-track"><span class="score-fill"></span></div>
+        <ul class="reasons"></ul>
+      </div>
+    </article>
+  </template>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

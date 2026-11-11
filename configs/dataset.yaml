@@ -1,0 +1,14 @@
+jan_path: Jan-Feb-parquet/jan_aggregated.parquet
+feb_path: Jan-Feb-parquet/feb_aggregated.parquet
+user_col: PANELISTID
+item_col: APPDESCRIPTION
+weight_col: weight
+weight_unit: ms
+min_item_users: 10
+min_user_items: 3
+max_items: 10000
+clip_quantile: 0.999
+weight_transform: log1p
+normalize_names: true
+drop_empty: true
+seed: 42

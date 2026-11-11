@@ -1,0 +1,36 @@
+name: Feature or research proposal
+description: Propose a model, metric, protocol change, or operational feature.
+title: "[proposal] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What decision or workflow does this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Design, alternatives, and evaluation plan.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - data / protocol
+        - model
+        - evaluation
+        - API / serving
+        - docs / operations
+  - type: checkboxes
+    id: integrity
+    attributes:
+      label: Research integrity
+      options:
+        - label: I have not tuned on the February test labels.
+        - label: I will report coverage and cold-start slices, not only the primary metric.

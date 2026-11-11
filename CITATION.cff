@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+message: "If you use EngageGraph, please cite this software and the metapath2vec / implicit-ALS papers where relevant."
+title: "EngageGraph: A Reproducible Benchmark and Toolkit for Temporal App-Engagement Prediction"
+abstract: "A leakage-free January-to-February app-adoption benchmark, four reference models, paired bootstrap evaluation, and an operable recommendation API."
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/cxy2696/app-engagement"
+url: "https://github.com/cxy2696/app-engagement"
+version: 2.0.0
+date-released: 2026-11-11
+authors:
+  - family-names: Cui
+    given-names: Xinyi
+    alias: cxy2696
+    affiliation: Cornell University
+keywords:
+  - recommender systems
+  - app engagement
+  - metapath2vec
+  - implicit feedback
+  - reproducibility
+  - benchmark
+references:
+  - type: article
+    title: "metapath2vec: Scalable Representation Learning for Heterogeneous Networks"
+    authors:
+      - family-names: Dong
+        given-names: Yuxiao
+      - family-names: Chawla
+        given-names: Nitesh V.
+      - family-names: Swami
+        given-names: Ananthram
+    conference:
+      name: "KDD '17"
+    year: 2017
+    doi: "10.1145/3097983.3098036"
+  - type: article
+    title: "Collaborative Filtering for Implicit Feedback Datasets"
+    authors:
+      - family-names: Hu
+        given-names: Yifan
+      - family-names: Koren
+        given-names: Yehuda
+      - family-names: Volinsky
+        given-names: Chris
+    conference:
+      name: "ICDM 2008"
+    year: 2008
+    doi: "10.1109/ICDM.2008.22"

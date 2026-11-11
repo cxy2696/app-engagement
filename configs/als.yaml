@@ -1,0 +1,23 @@
+data:
+  jan_path: Jan-Feb-parquet/jan_aggregated.parquet
+  feb_path: Jan-Feb-parquet/feb_aggregated.parquet
+  min_item_users: 10
+  min_user_items: 3
+  max_items: 10000
+  weight_transform: log1p
+  clip_quantile: 0.999
+evaluation:
+  k_values: [10, 20, 50]
+  primary_k: 10
+  bootstrap_samples: 1000
+seed: 42
+output_dir: artifacts/runs
+name: als
+model:
+  name: als
+  params:
+    factors: 64
+    regularization: 0.05
+    iterations: 15
+    alpha: 40.0
+    random_state: 42

@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=teal!50!black,urlcolor=blue!50!black}
+
+\title{\textbf{EngageGraph}: A Reproducible Benchmark and Toolkit for\\Temporal App-Engagement Prediction}
+\author{Xinyi Cui\\Cornell University\\\texttt{xinyicui0108@outlook.com}}
+\date{November 2026}
+
+\begin{document}
+\input{results}
+\maketitle
+
+\begin{abstract}
+App-engagement prediction is often demonstrated with a single notebook, a balanced AUC, and a pickled model. That combination is difficult to audit, easy to leak, and hard to operate. We present EngageGraph, an open-source benchmark and toolkit for \emph{next-month new-app adoption} on panel-scale app-usage data. The protocol fits every component on January 2024, uses February only to construct binary adoption labels, ranks the full January catalogue with seen apps masked, and reports macro-averaged ranking metrics with paired user-level bootstrap intervals. We release four reference models---popularity, item-kNN, implicit ALS, and MetaPath2Vec---a pickle-free artefact format, a FastAPI service with cold-start handling and explanations, and a complete operational stack. On the January--February panel, item-kNN is the strongest reference model (NDCG@10 = \BestNDCG), while the graph embedding model underperforms despite its prominence in the original repository. We also audit the original notebook's reported 0.9257 AUC, identifying an elementwise cosine read-out, a February mapping mismatch, and a balanced-negative protocol that does not estimate deployment precision. The result is a benchmark designed to make negative results and operational trade-offs as visible as positive ones.
+\end{abstract}
+
+\section{Introduction}
+
+Mobile app engagement is a sequential, sparse, and highly skewed phenomenon. A recommendation model that suggests the right app at the right time can improve retention; a model that only re-ranks the apps a user already has may look accurate while changing nothing. Distinguishing these outcomes requires a task definition, a temporal split, and a candidate set that match the decision being made.
+
+The original \texttt{app-engagement} repository was a research upload: aggregated January and February 2024 panel exports, a MetaPath2Vec graph, model weights, and a notebook that produced app-switching probabilities. It was useful as an exploration, but it had three properties that make its headline numbers unsuitable for product decisions. First, February edges were used both to fit and to evaluate. Second, the evaluation sampled negatives by similarity, producing a balanced pair-classification task rather than a ranking task. Third, the cosine read-out averaged elementwise products, collapsing scores to a near-constant $1/d$ ($0.0156$ for $d=64$), and the February embeddings were indexed with a different mapping than the one used to build them. The notebook's own output shows the symptoms: identical top-pair scores and zero overlap between January and February top pairs.
+
+This paper makes four contributions:
+
+\begin{enumerate}
+  \item A leakage-free temporal benchmark for next-month new-app adoption, with a fixed January catalogue, user eligibility rules, and explicit cold-start accounting.
+  \item A reproducible empirical comparison of popularity, item-kNN, implicit ALS, and MetaPath2Vec under one protocol, including coverage, novelty, and paired bootstrap comparisons.
+  \item An audit of the legacy AUC protocol that separates link-prediction discrimination from recommendation precision and documents the code-level defects.
+  \item An operable reference system: versioned artefacts, a typed Python package, a CLI, an HTTP API, a dashboard, Docker, CI, data/model cards, and runbooks.
+\end{enumerate}
+
+We do not claim that item-kNN is the best possible model, nor that these results generalise beyond this panel and month pair. We claim that the protocol is auditable and that the reported trade-offs are real under it.
+
+\section{Related work}
+
+\textbf{Collaborative filtering.} Item-based CF \citep{sarwar2001item} remains a strong baseline for sparse implicit data because it directly encodes co-usage. Implicit ALS \citep{hu2008implicit} learns low-rank factors from confidence-weighted interactions, and BPR \citep{rendle2009bpr} optimises a pairwise ranking objective. EASE \citep{steck2019ease} is a closed-form item-item model that often outperforms deeper models on small catalogues; we leave it to future work.
+
+\textbf{Graph representation learning.} metapath2vec \citep{dong2017metapath2vec} learns heterogeneous node embeddings from meta-path-guided random walks and a skip-gram objective with negative sampling. It is a natural fit for a user--app bipartite graph. Our result shows that a faithful implementation of the objective does not automatically produce a strong top-$K$ recommender; the read-out and the ranking objective matter.
+
+\textbf{Reproducibility and documentation.} Datasheets \citep{gebro2021datasheets} and model cards \citep{mitchell2019modelcards} document provenance, intended use, and limitations. Hidden technical debt \citep{sculley2015debt} describes why notebook-to-product transitions fail. EngageGraph treats these as first-class deliverables rather than appendices.
+
+\section{Data}
+
+The panel contains monthly aggregates of foreground app duration for January and February 2024. The raw exports have \DatasetUsers{} eligible panelists, \DatasetItems{} catalogue apps, \TrainInteractions{} January interactions, and \TestTargets{} February adoption targets across \EvalUsers{} evaluation users. A further \ColdUsers{} February users have no January history and are reported as a cold-start slice. The weight column is inferred to be milliseconds from its distribution; all primary metrics are invariant to a global rescaling. The data card documents the unresolved provenance and the research-only licence.
+
+The catalogue is fixed from January: apps used by at least ten distinct panelists, capped at the 10{,}000 most-supported apps. Users need at least three catalogue apps in January. Weights are clipped at the 99.9th percentile and transformed with $\log(1+w)$. February is used only to label a user--app pair as an adoption if the app is in the January catalogue and was not used in January.
+
+\section{Protocol}
+
+For user $u$ with January history $H_u$ and February adoption set $R_u \subseteq I_{\mathrm{Jan}} \setminus H_u$, every model produces a ranking of $I_{\mathrm{Jan}} \setminus H_u$. The evaluator masks $H_u$ centrally, so all models see the same candidate set. The primary metric is NDCG@10, macro-averaged over users; we also report Recall@10, MAP@10, HitRate@10, coverage@10, Gini@10, and novelty@10.
+
+Uncertainty is estimated by a paired user-level bootstrap with 1{,}000 resamples. We report the 95\% percentile interval for the mean difference against popularity and apply Holm--Bonferroni correction across the family of comparisons. Hyperparameters were fixed before the February evaluation; no test metric was used for model selection. The full protocol, including leakage controls, is in the repository's methodology document.
+
+\section{Models}
+
+\textbf{Popularity} scores each app by its January user support (log-scaled). It is a strong adjacent-month baseline and the cold-start fallback.
+
+\textbf{Item-kNN} computes cosine similarity between item columns of the binary January matrix, retains the top 100 neighbours per item, and sums neighbour similarities over the user's history.
+
+\textbf{Implicit ALS} uses confidence $c_{u,i}=1+\alpha r_{u,i}$ with $\alpha=40$, 64 factors, $\lambda=0.05$, and 15 sweeps \citep{hu2008implicit}.
+
+\textbf{MetaPath2Vec} learns 64-dimensional embeddings from meta-path-guided walks on the bipartite graph with the objective of \citet{dong2017metapath2vec}. Because the jointly learned user vector is not optimised for top-$K$ ranking, we score a user by the engagement-weighted mean of their January item embeddings, normalised and dotted with item embeddings. This read-out is documented as a design choice, not part of the original objective.
+
+\section{Results}
+
+Table~\ref{tab:main} reports the primary comparison. Item-kNN achieves the best NDCG@10 (\BestNDCG), improving on popularity with a paired interval that excludes zero (Table~\ref{tab:comparisons}). The gain is modest in absolute terms but consistent: a $\Delta$ of roughly 0.03 NDCG@10 corresponds to moving relevant apps earlier in a 10-item slate for a substantial fraction of users.
+
+ALS illustrates the difference between discrimination and top-$K$ ranking. It separates February positives from random negatives well (AUC around 0.89 in our diagnostic), but its top-10 slate is dominated by niche items: NDCG@10 falls to 0.099 while coverage rises to 0.317. This is a classic implicit-feedback failure mode: reconstruction quality does not imply calibration for a popularity-skewed ranking metric.
+
+MetaPath2Vec is weaker still under this protocol (NDCG@10 = 0.164 with profile scoring). The result is informative rather than embarrassing: a faithful implementation of a graph objective is not automatically a strong recommender, and the original repository's qualitative claims about app similarity did not constitute a ranking evaluation. We report it because omitting an inconvenient model would undermine the benchmark.
+
+Coverage and novelty expose the trade-off that accuracy alone hides. Popularity and item-kNN concentrate almost all impressions on a few dozen apps (coverage@10 of 0.006 and 0.013), whereas ALS spreads recommendations across a third of the catalogue. A product team may prefer a blend; the benchmark makes the choice explicit instead of hiding it inside a single metric.
+
+\section{The legacy AUC}
+
+The original notebook reported ROC-AUC 0.9257 and precision 0.8552. Those numbers are reproducible in shape but not comparable to Table~\ref{tab:main}. The notebook trained and tested on February edges, sampled negatives by similarity, and selected the best of nine binary operators on the same labels. A balanced 1:1 test can show high AUC while precision at realistic prevalence is low; our audit reports both and computes positive predictive value at 1\% and 5\% prevalence using the test-set TPR and FPR.
+
+Two code-level defects compound the problem. The ``cosine'' function returns an elementwise vector and the caller averages it, so the score is approximately $1/d$ rather than a dot product; the notebook's top pairs all print 0.0156. The February embedding matrix is filtered with indices from a different mapping, so top pairs mix unrelated apps. These are not subtle methodological preferences; they are implementation errors that make the reported top pairs arbitrary.
+
+\section{Operational design}
+
+The benchmark is packaged as a product, not a notebook. Artefacts contain a JSON manifest, NumPy arrays, mappings, and the January history; no pickle is used. The manifest records the dataset fingerprint, package version, git commit, model parameters, and evaluation metrics. The FastAPI service loads one artefact, masks seen items, returns explanations grounded in January co-usage, and falls back to popularity for unknown users with an explicit \texttt{cold\_start\_popularity} strategy. Health endpoints, request IDs, Prometheus counters, feedback capture, Docker, CI, and a retraining runbook are included.
+
+This engineering is not incidental. A model that cannot be rolled back, audited, or explained is not deployable, and a benchmark that cannot be rerun is not evidence.
+
+\section{Limitations and ethics}
+
+The study covers one panel and one month pair. Panelists opt into measurement and may not represent the population. The weight unit is inferred, labels are binary, and panel attrition can look like disinterest. There are no demographics, so group fairness cannot be assessed; app usage can still reveal sensitive interests, and the data must not be used for re-identification or individual targeting. The code is Apache-2.0; the data is research-use only.
+
+\section{Reproducibility}
+
+The repository pins the environment, records source hashes, fixes seeds, and stores per-user metric arrays for paired comparisons. CI runs the test suite on synthetic data; the panel benchmark is reproduced locally or in a protected job. The evaluation command refuses to run if the artefact and dataset fingerprints differ, preventing a common silent failure. Known non-reproducibility (BLAS ordering, PyG walk order, vendor label changes) is documented rather than hidden.
+
+\section{Conclusion}
+
+EngageGraph turns a research notebook into an auditable benchmark and an operable recommendation service. Its most useful result may be negative: a graph embedding model that motivated the original repository does not beat a well-tuned item-kNN baseline on next-month app adoption. Reporting that result, alongside the protocol and the operational machinery, is the point.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

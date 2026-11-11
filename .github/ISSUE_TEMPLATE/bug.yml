@@ -1,0 +1,32 @@
+name: Bug report
+description: Something is broken or produces an invalid result.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not include raw panel data or personal identifiers."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Commands, observed output, and expected output.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: "engagegraph 2.0.0, commit abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python, install extras (als/graph), CPU/GPU.
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Config snippets or synthetic fixture; no panel rows.

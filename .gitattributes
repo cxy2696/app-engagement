@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.parquet binary
+*.pt binary
+*.pth binary
+*.npz binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.ipynb linguist-vendored

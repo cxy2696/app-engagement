@@ -1,0 +1,39 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+.DS_Store
+
+# Runtime output
+var/
+artifacts/runs/
+artifacts/*.tar.gz
+reports/*.tmp
+
+# Data (existing Jan-Feb-parquet remains tracked for reproducibility)
+data/raw/
+data/processed/
+!data/README.md
+
+# Large legacy artifacts (tracked historically, not modified here)
+*.pt
+*.pth
+
+# Generated model artefacts (published via releases, not git)
+artifacts/demo/
+artifacts/registry.json
+
+# Paper build intermediates
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/main.pdf

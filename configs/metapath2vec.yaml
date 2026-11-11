@@ -1,0 +1,29 @@
+data:
+  jan_path: Jan-Feb-parquet/jan_aggregated.parquet
+  feb_path: Jan-Feb-parquet/feb_aggregated.parquet
+  min_item_users: 10
+  min_user_items: 3
+  max_items: 10000
+  weight_transform: log1p
+  clip_quantile: 0.999
+evaluation:
+  k_values: [10, 20, 50]
+  primary_k: 10
+  bootstrap_samples: 1000
+seed: 42
+output_dir: artifacts/runs
+name: metapath2vec
+model:
+  name: metapath2vec
+  params:
+    embedding_dim: 64
+    walk_length: 20
+    context_size: 5
+    walks_per_node: 5
+    num_negative_samples: 5
+    epochs: 5
+    batch_size: 128
+    learning_rate: 0.01
+    metapath: app-user-app
+    scoring: profile
+    seed: 42
