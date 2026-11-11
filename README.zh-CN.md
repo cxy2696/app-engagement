@@ -3,6 +3,7 @@
 **可复现、可运营的应用参与度分析与“下一款应用”推荐系统。**
 
 [![CI](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml/badge.svg)](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/cxy2696/app-engagement)](https://github.com/cxy2696/app-engagement/releases)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-4f46e5)](https://www.python.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
@@ -65,6 +66,8 @@ engagegraph serve --artifact artifacts/runs/<run>/artifact --port 8000
 
 Dataset fingerprint: `a84b20b180409390ea2b` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
+
+**技术报告：** [EngageGraph（PDF）](paper/engagegraph-report.pdf) · **评估报告：** [reports/evaluation-report.md](reports/evaluation-report.md) · **旧结果审计：** [reports/legacy-audit.md](reports/legacy-audit.md)
 
 ## 主要能力
 

@@ -15,7 +15,7 @@
 \date{November 2026}
 
 \begin{document}
-\input{results}
+\input{metrics}
 \maketitle
 
 \begin{abstract}
@@ -70,6 +70,8 @@ Uncertainty is estimated by a paired user-level bootstrap with 1{,}000 resamples
 \textbf{MetaPath2Vec} learns 64-dimensional embeddings from meta-path-guided walks on the bipartite graph with the objective of \citet{dong2017metapath2vec}. Because the jointly learned user vector is not optimised for top-$K$ ranking, we score a user by the engagement-weighted mean of their January item embeddings, normalised and dotted with item embeddings. This read-out is documented as a design choice, not part of the original objective.
 
 \section{Results}
+
+\input{tables}
 
 Table~\ref{tab:main} reports the primary comparison. Item-kNN achieves the best NDCG@10 (\BestNDCG), improving on popularity with a paired interval that excludes zero (Table~\ref{tab:comparisons}). The gain is modest in absolute terms but consistent: a $\Delta$ of roughly 0.03 NDCG@10 corresponds to moving relevant apps earlier in a 10-item slate for a substantial fraction of users.
 

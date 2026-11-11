@@ -3,6 +3,7 @@
 **Reproducible app-engagement analytics and next-app recommendation — built to be operated, not just demonstrated.**
 
 [![CI](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml/badge.svg)](https://github.com/cxy2696/app-engagement/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/cxy2696/app-engagement)](https://github.com/cxy2696/app-engagement/releases)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-4f46e5)](https://www.python.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-0f766e)](LICENSE)
 [![Data: research use](https://img.shields.io/badge/data-research%20use%20only-e05d44)](DATA_LICENSE.md)
@@ -95,6 +96,8 @@ curl "http://127.0.0.1:8000/v1/users/<panelist-id>/recommendations?k=5"
 
 Dataset fingerprint: `a84b20b180409390ea2b` · Primary metric: `ndcg@10` · Evaluation users: 28,286 · Cold-start users: 10,875. Paired bootstrap intervals (1,000 resamples) are computed over evaluation users.
 <!-- RESULTS_TABLE_END -->
+
+**Technical report:** [EngageGraph (PDF)](paper/engagegraph-report.pdf) · **Evaluation report:** [reports/evaluation-report.md](reports/evaluation-report.md) · **Legacy audit:** [reports/legacy-audit.md](reports/legacy-audit.md)
 
 The primary metric is **NDCG@10** over the full January catalogue with seen apps masked. Relevance is binary February adoption. Confidence intervals are paired user-level bootstrap intervals (1,000 resamples); p-values are Holm-corrected across models. Full protocol: [`docs/evaluation.md`](docs/evaluation.md).
 
